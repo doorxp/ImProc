@@ -3,115 +3,121 @@
 
 #include <stdio.h>
 
-short** Invert_Pixels(short** image, int width, int height)
+struct pixel{
+  char grey;
+  char red;
+  char green;
+  char blue;
+}
+
+pixel* Invert_Pixels(pixel* image, int width, int height)
 {
-    int i,j;
-    i = j = 0;
- 
-    for(i; i < width; i++)
+    int i = 0;      
+    int length = width * height;
+
+    for(i; i < length; i++)
     {
-      for(j; j < height; j++)
-        {
-          image[i][j] = 255 - image[i][j];
-        }
+      pixel p = image[i];
+      p.grey = 255 - p.grey;
+      p.red = 255 - p.red;
+      p.green = 255 - p.green;
+      p.blue = 255 - p.blue;
+      image[i] = p;
     }
     return image;
 }
 
-short** Modify_Contrast(short** image, int alpha, int width, int height)
+pixel* Modify_Contrast(pixel* image, int alpha, int width, int height)
 {
-    int i,j;
-    i = j = 0;
- 
-    for(i; i < width; i++)
-    {
-      for(j; j < height; j++)
-        {
-          // compute new pixel data
-          short newPixel = image[i][j] * alpha;
+  int i = 0;
+  int length = width * height;
 
-          // clamp pixel data to 0/255 (assuming 8 bit depth)
-          if(newPixel > 255) image[i][j] = 255;
-          else image[i][j] = newPixel;
-        }
+  for(i; i < length; i++)
+    {
+      // compute new pixel data
+      pixel p = image[i];
+      p.grey = p.grey * alpha;
+      p.red = p.red * alpha;
+      p.green = p.green * alpha;
+      p.blue = p.blue * alpha;
+      
+      // clamp pixel data to 0/255 (assuming 8 bit depth)
+      p.grey = (p.grey > 255) ? 255 : p.grey;
+      p.red = (p.red > 255) ? 255 : p.red;
+      p.green = (p.green > 255) ? 255 : p.green;
+      p.gblue = (p.blue > 255) ? 255 : p.blue;
+
+      image[i] = p;
     }
-    return image;
+  return image;
 }
 
-short** Modify_Brightness(short** image, int alpha, int width, int height)
+pixel* Modify_Brightness(pixel* image, int alpha, int width, int height)
 {
-    int i,j;
-    i = j = 0;
- 
-    for(i; i < width; i++)
-    {
-      for(j; j < height; j++)
-        {
-          // compute new pixel data
-          short newPixel = image[i][j] + alpha;
+  int i = 0;
+  int length = width * height;
 
-          // clamp pixel data to 0/255 (assuming 8 bit depth)
-          if(newPixel > 255) image[i][j] = 255;
-          else image[i][j] = newPixel;
-        }
+  for(i; i < length; i++)
+    {
+      // compute new pixel data
+      pixel p = image[i];
+      p.grey = p.grey * alpha;
+      p.red = p.red * alpha;
+      p.green = p.green * alpha;
+      p.blue = p.blue * alpha;
+      
+      // clamp pixel data to 0/255 (assuming 8 bit depth)
+      p.grey = (p.grey > 255) ? 255 : p.grey;
+      p.red = (p.red > 255) ? 255 : p.red;
+      p.green = (p.green > 255) ? 255 : p.green;
+      p.gblue = (p.blue > 255) ? 255 : p.blue;
+
+      image[i] = p;
     }
-    return image;
+  return image;
 }
 
-short** Threshold(short** image, int alpha, int width, int height)
+pixel* Threshold(pixel* image, int alpha, int width, int height)
 {
-    int i,j;
-    i = j = 0;
- 
-    for(i; i < width; i++)
+  int i = 0;
+  int length = width * height;
+
+  for(i; i < length; i++)
     {
-      for(j; j < height; j++)
-        {
-          if(image[i][j] < alpha) image[i][j] = 0;
-          else image[i][j] = 255;
-        }
+      // compute new pixel data
+      pixel p = image[i];
+      
+      // clamp pixel data to 0/255 (assuming 8 bit depth)
+      p.grey = (p.grey > alpha) ? 255 : 0;
+      p.red = (p.red > alpha) ? 255 : 0;
+      p.green = (p.green > alpha) ? 255 : 0;
+      p.gblue = (p.blue > alpha) ? 255 : 0;
+
+      // assign new pixel info
+      image[i] = p;
     }
-    return image;
+  return image;
 }
 
-unsigned long* Histogram(short** image, int width, int height)
+unsigned long** Histogram(pixel* image, int width, int height, unsigned long** histogram)
 {
-    unsigned long histogram[];    
-    int i,j;
-    i = j = 0;
+    int i = 0;
+    int length = width * height;
  
-    for(i; i < width; i++)
-    {
-      for(j; j < height; j++)
-        {
-          short k = image[i][j];
-          histogram[k] = histogram[k] + 1;
-        }
-    }
+    for(i; i < length; i++)
+      {
+	pixel p = image[i];
+	
+	int grey = p.grey;
+	int red = p.red;
+	int green = p.green;
+	int blue = p.blue;
+
+	histogram[0][grey] = histogram[0][grey] + 1;
+	histogram[1][red] = histogram[1][red] + 1;
+	histogram[2][green] = histogram[2][green] + 1;
+	histogram[3][blue] = histogram[3][blue] + 1;
+      }
     return histogram;
 }
-
-short** Auto_Contrast(short** image, int width, int height)
-{
-    int i,j;
-    i = j = 0;
-
-    // compute histogram for image
-    unsigned long histogram = Histogram(image, width, height);
-
-    for(i; i < width; i++)
-    {
-      for(j; j < height; j++)
-        {
-          // compute new pixel data
-          short newPixel = image[i][j] * alpha;
-
-          // clamp pixel data to 0/255 (assuming 8 bit depth)
-          if(newPixel > 255) image[i][j] = 255;
-          else image[i][j] = newPixel;
-        }
-    }
-    return image;
-}
-
 
