@@ -1,0 +1,8 @@
+#!/bin/bash
+
+python image2matrix.py $1
+mapfile sizes < size
+width="${sizes[0]}"
+height="${sizes[1]}"
+./a.out matrix $width $height
+python matrix2image.py

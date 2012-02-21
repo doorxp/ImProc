@@ -27,9 +27,9 @@ int main (int argc, char **argv)
       abort();
     }
     
-  for (i = 0; i < cols; i++)
+  for (i = 0; i < rows; i++)
     {
-      for (j = 0; j < rows; j++)
+      for (j = 0; j < cols; j++)
 	{
 	  fscanf(fp, "%hu", (pixelVals + (i*cols+j)));
 	}
@@ -96,9 +96,9 @@ int main (int argc, char **argv)
 
   if(selection < 8)
     {
-      for (i = 0; i < cols; i++)
+      for (i = 0; i < rows; i++)
 	{
-	  for (j = 0; j < rows; j++)
+	  for (j = 0; j < cols; j++)
 	    {
 	      fprintf(fp, "%hu", *(pixelVals + (i*cols+j)));
 	      fprintf(fp, "%s", " ");

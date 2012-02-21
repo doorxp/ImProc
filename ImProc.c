@@ -142,7 +142,7 @@ unsigned short* Histogram_Eq(unsigned short* image, int width, int height)
 
   for(i = 0; i < length; i++)
     {
-      image[i] = histogram[image[i]] * (255/length);
+      image[i] = round(histogram[image[i]] * (255.0/length));
     }
 
   return image;
