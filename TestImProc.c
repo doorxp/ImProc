@@ -81,6 +81,12 @@ int main (int argc, char **argv)
       histogram[i] = 0;
     Histogram(pixelVals, cols, rows, histogram);
     break;
+  case 9: 
+    histogram = (unsigned long*)malloc(256 * sizeof(long*));
+    for(i = 0; i < 256; i++)
+      histogram[i] = 0;
+    Cum_Histogram(pixelVals, cols, rows, histogram);
+    break;
   }
 
   fp = fopen("output", "w");

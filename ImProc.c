@@ -79,6 +79,19 @@ unsigned long* Histogram(unsigned short* image, int width, int height, unsigned 
   return histogram;
 }
 
+unsigned long* Cum_Histogram(unsigned short* image, int width, int height, unsigned long* histogram)
+{
+  int i;
+  int length = width * height;
+ 
+  Histogram(image, width, height, histogram);
+
+  for(i = 1; i < 256; i++)
+      histogram[i] = histogram[i-1] + histogram[i];
+
+  return histogram;
+}
+
 unsigned short* Auto_Contrast(unsigned short* image, int width, int height)
 {
   int i;
