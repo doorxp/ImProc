@@ -7,10 +7,11 @@ unsigned short* Modify_Contrast(unsigned short* image, int alpha, int width, int
 unsigned short* Modify_Brightness(unsigned short* image, int alpha, int width, int height);
 unsigned short* Threshold(unsigned short* image, int alpha, int width, int height);
 unsigned short* Auto_Contrast(unsigned short* image, int width, int height);
+unsigned short* Histogram_Eq(unsigned short* image, int width, int height);
 
 // analysis
 unsigned long* Histogram(unsigned short* image, int width, int height, unsigned long* histogram);
-unsigned long* Cum_Histogram(unsigned short* image, int width, int height, unsigned long* histogram)
+unsigned long* Cum_Histogram(unsigned short* image, int width, int height, unsigned long* histogram);
 
 // feature detection
 

@@ -123,8 +123,27 @@ unsigned short* Auto_Contrast(unsigned short* image, int width, int height)
       // compute new pixel data
       short newPixel = image[i] - a_low;
       newPixel = newPixel * (255.0/(a_high-a_low));
+      image[i] = newPixel;
     }
 
   free(histogram);
+  return image;
+}
+
+unsigned short* Histogram_Eq(unsigned short* image, int width, int height)
+{
+  int i;
+  int length = width * height;
+ 
+  unsigned long* histogram = malloc(256*sizeof(long));
+  for(i = 0; i < 256; i++)
+      histogram[i] = 0;
+  Cum_Histogram(image, width, height, histogram);
+
+  for(i = 0; i < length; i++)
+    {
+      image[i] = histogram[image[i]] * (255/length);
+    }
+
   return image;
 }

@@ -75,6 +75,9 @@ int main (int argc, char **argv)
   case 5:
     Auto_Contrast(pixelVals, cols, rows);
     break;
+  case 6:
+    Histogram_Eq(pixelVals, cols, rows);
+    break;
   case 8: 
     histogram = (unsigned long*)malloc(256 * sizeof(long*));
     for(i = 0; i < 256; i++)
