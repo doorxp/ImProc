@@ -11,6 +11,7 @@ int main (int argc, char **argv)
     }
 
   short* pixelVals;
+  unsigned long* histogram;
   int cols = strtol(argv[2], NULL, 10);
   int rows = strtol(argv[3], NULL, 10);
   int i,j;
@@ -41,42 +42,69 @@ int main (int argc, char **argv)
   printf("2 - Brightness\n");
   printf("3 - Contrast\n");
   printf("4 - Thresholding\n");
-  printf("5 - Histogram\n");
+  printf("5 - Auto-Contrast\n");
+  printf("6 - Histogram Equilization\n");
+  printf("7 - Gaussian Filter\n");
+  printf("8 - Histogram\n");
+  printf("9 - Cumulative Histogram\n");
   printf("Output will be written to \"output\"\n");
 
-  char selection = getchar();
+  int selection, sel;
+  scanf("%d", &selection);
   char enter  = getchar();
-  int sel;
 
   switch (selection) {
-  case '1': Invert_Pixels(pixelVals, cols, rows);
+  case 1: 
+    Invert_Pixels(pixelVals, cols, rows);
     break;
-  case '2': printf("Enter alpha value: ");
+  case 2: 
+    printf("Enter alpha value: ");
     scanf("%d", &sel);
     Modify_Brightness(pixelVals, sel, cols, rows);
     break;
-  case '3': printf("Enter alpha value: ");
+  case 3:
+    printf("Enter alpha value: ");
     scanf("%d", &sel);
     Modify_Contrast(pixelVals, sel, cols, rows);
     break;
-  case '4': printf("Enter alpha value: ");
+  case 4: 
+    printf("Enter alpha value: ");
     scanf("%d", &sel);
     Threshold(pixelVals, sel, cols, rows);
+    break;
+  case 5:
+    Auto_Contrast(pixelVals, cols, rows);
+    break;
+  case 8: 
+    histogram = (unsigned long*)malloc(256 * sizeof(long*));
+    for(i = 0; i < 256; i++)
+      histogram[i] = 0;
+    Histogram(pixelVals, cols, rows, histogram);
     break;
   }
 
   fp = fopen("output", "w");
 
-  for (i = 0; i < cols; i++)
+  if(selection < 8)
     {
-      for (j = 0; j < rows; j++)
+      for (i = 0; i < cols; i++)
 	{
-	  fprintf(fp, "%hu", *(pixelVals + (i*cols+j)));
+	  for (j = 0; j < rows; j++)
+	    {
+	      fprintf(fp, "%hu", *(pixelVals + (i*cols+j)));
+	      fprintf(fp, "%s", " ");
+	    }
+	  fprintf(fp, "%s", "\n");
+	}
+    }
+  else
+    {
+      for(i = 0; i < 256; i++)
+	{
+	  fprintf(fp, "%lu", *(histogram + i));
 	  fprintf(fp, "%s", " ");
 	}
-      fprintf(fp, "%s", "\n");
     }
-  
   fclose(fp);
   free(pixelVals);
 }

@@ -2,6 +2,8 @@
 // Image Processing Library Test Source
 
 #include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 #include "ImProc.h"
 
 unsigned short* Invert_Pixels(unsigned short* image, int width, int height)
@@ -59,7 +61,7 @@ unsigned short* Threshold(unsigned short* image, int alpha, int width, int heigh
       short newPixel = image[i];
       
       // clamp pixel data to 0/255 (assuming 8 bit depth)
-      image[i] = (newPixel > alpha) ? 255 : 0;
+      image[i] = (newPixel >= alpha) ? 255 : 0;
     }
   return image;
 }
@@ -77,3 +79,39 @@ unsigned long* Histogram(unsigned short* image, int width, int height, unsigned 
   return histogram;
 }
 
+unsigned short* Auto_Contrast(unsigned short* image, int width, int height)
+{
+  int i;
+  short a_low, a_high;
+  i = a_low = a_high = 0;
+  int length = width * height;
+
+  unsigned long* histogram = malloc(256*sizeof(long));
+  for(i = 0; i < 256; i++)
+      histogram[i] = 0;
+  Histogram(image, width, height, histogram);
+ 
+  // get low value
+  i = 0;
+  while(a_low == 0){
+    if(histogram[i] != 0) a_low = i;
+    i++;
+  }
+
+  // get high value
+  i = 0;
+  while(a_high == 0){
+    if(histogram[255-i] != 0) a_high = 255-i;
+    i++;
+  }
+
+  for(i = 0; i < length; i++)
+    {
+      // compute new pixel data
+      short newPixel = image[i] - a_low;
+      newPixel = newPixel * (255.0/(a_high-a_low));
+    }
+
+  free(histogram);
+  return image;
+}
