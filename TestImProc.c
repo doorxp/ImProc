@@ -44,12 +44,13 @@ int main (int argc, char **argv)
   printf("4 - Thresholding\n");
   printf("5 - Auto-Contrast\n");
   printf("6 - Histogram Equilization\n");
-  printf("7 - Gaussian Filter\n");
+  printf("7 - Gamma Correction\n");
   printf("8 - Histogram\n");
   printf("9 - Cumulative Histogram\n");
   printf("Output will be written to \"output\"\n");
 
   int selection, sel;
+  double sel_flt;
   scanf("%d", &selection);
   char enter  = getchar();
 
@@ -77,6 +78,11 @@ int main (int argc, char **argv)
     break;
   case 6:
     Histogram_Eq(pixelVals, cols, rows);
+    break;
+  case 7:
+    printf("Enter gamma value: ");
+    scanf("%lf", &sel_flt);
+    Gamma_Corr(pixelVals, sel_flt, cols, rows);
     break;
   case 8: 
     histogram = (unsigned long*)malloc(256 * sizeof(long*));

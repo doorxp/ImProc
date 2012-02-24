@@ -66,6 +66,36 @@ unsigned short* Threshold(unsigned short* image, int alpha, int width, int heigh
   return image;
 }
 
+unsigned short* Gamma_Corr(unsigned short* image, double alpha,  int width, int height)
+{
+  int i, a;
+  i = a = 0;
+  int length = width * height;
+
+  int K = 256;
+  int aMax = K - 1;
+  double GAMMA = alpha;
+  
+  short lookupTable[K];
+
+  // compute lookup table
+  for(a = 0; a < K; a++)
+    {
+      double aa = (double) a / aMax;
+      double bb = pow(aa, GAMMA);
+
+      short b = (short) round(bb * aMax);
+      lookupTable[a] = b;
+    }
+
+  for(i; i < length; i++)
+    {
+      // apply lookup table to image
+      image[i] = lookupTable[image[i]];
+    }
+  return image;
+}
+
 unsigned long* Histogram(unsigned short* image, int width, int height, unsigned long* histogram)
 {
   int i = 0;
