@@ -1,0 +1,42 @@
+#ifndef ADD_H_GUARD
+#define ADD_H_GUARD
+
+struct pixel{
+  char red;
+  char green;
+  char blue;
+  char alpha;
+};
+
+// point operations - grayscale
+unsigned char* Invert_Pixels_Gray(struct pixel* image, int width, int height);
+unsigned char* Modify_Contrast_Gray(struct pixel* image, int alpha, int width, int height);
+unsigned char* Modify_Brightness_Gray(struct pixel* image, int alpha, int width, int height);
+unsigned char* Threshold_Gray(struct pixel* image, int alpha, int width, int height);
+
+// point operations - rgba
+struct pixel* Invert_Pixels(struct pixel* image, int width, int height);
+struct pixel* Modify_Contrast(struct pixel* image, int alpha, int width, int height);
+struct pixel* Modify_Brightness(struct pixel* image, int alpha, int width, int height);
+struct pixel* Threshold(struct pixel* image, int alpha, int width, int height);
+
+// no differentiation for color vs gray here
+// these methods should not be used real-time
+// for grayscale simply set the gray value for one char per each channel
+// true histogram equilization for color requires conversion to hsv - maybe in future?
+struct pixel* Auto_Contrast(struct pixel* image, int width, int height);
+struct pixel* Histogram_Eq(struct pixel* image, int width, int height);
+struct pixel* Gamma_Corr(struct pixel* image, double alpha,  int width, int height);
+
+// analysis
+// Histogram for color images is three dimensional and too large for implementation; 2d options?
+unsigned long* Histogram_Gray(struct pixel* image, int width, int height, unsigned long* histogram);
+unsigned long** Histogram_RGB(struct pixel* image, int width, int height, unsigned long** histogram);
+unsigned long* Histogram_RGB_toGray(struct pixel* image, int width, int height, unsigned long* histogram);
+unsigned long* Cum_Histogram_Gray(struct pixel* image, int width, int height, unsigned long* histogram);
+unsigned long** Cum_Histogram_RGB(struct pixel* image, int width, int height, unsigned long** histogram);
+unsigned long* Cum_Histogram_RGB_toGray(struct pixel* image, int width, int height, unsigned long* histogram);
+
+// feature detection
+
+#endif
