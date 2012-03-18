@@ -15,10 +15,9 @@ typedef struct hsv_pixel{
 } hsv_pixel;
 
 typedef struct kernel_1d{
-  int* kernel_int;
-  double* kernel_double;
-  int length;
-  int sum;
+  unsigned char* kernel;
+  unsigned char length;
+  unsigned int sum;
 } kernel_1d;
 
 // add 2d kernel later for morphological operators
@@ -73,7 +72,7 @@ unsigned long** Histogram_Color(pixel* image, int width, int height, unsigned lo
 unsigned long* Cum_Histogram_Lum(pixel* image, int width, int height, unsigned long* histogram);
 unsigned long** Cum_Histogram_Color(pixel* image, int width, int height, unsigned long** histogram);
 
-// utility methods - conversion
+// utility methods
 // RGB to grayscale conversion routines
 unsigned char* RGB_to_Gray_CharArray(pixel* image, int width, int height, unsigned char* gray_Image);
 pixel* RGB_to_Gray_PixelArray(pixel* image, int width, int height);
@@ -86,24 +85,14 @@ hsv_pixel pixel_rgb_to_hsv(pixel* rgb);
 pixel* image_hsv_to_rgb(hsv_pixel* hsv_image, int width, int height, pixel* rgb_image);
 pixel pixel_hsv_to_rgb(hsv_pixel* hsv);
 
-// utility methods - type conversion, image combination, point operations
-// caller must free memory for new copy of image
-pixel* image_copy(pixel* image, int width, int height);
-pixel* image_copyBits(pixel* image1, pixel* image2, int width, int height, int type);
-pixel* image_pointOp(pixel* image, float alpha, int width, int height, int type);
-pixel* intArray_to_image(int* intArray, int width, int height, pixel* image);
-int* image_to_intArray(pixel* image, int width, int height, int* intArray);
-int* intArray_copyBits(int* intArray1, int* intArray2, int width, int height, int type);
-int* intArray_pointOp(int* intArray, float alpha, int width, int height, int type);
-
 // spatial filter methods
 kernel_1d Make_Gaussian_1d_Kernel(double sigma);
-pixel* Gaussian_Blur(pixel* image, double sigma, int width, int height, int type);
-pixel* Blur_Or_Sharpen(pixel* image, double sigma, float w, int width, int height, int type);
+pixel* Gaussian_Blur(pixel*, double sigma, int width, int height);
+pixel* Blue_Or_Sharpen(pixel*, double sigma, int w, int width, int height);
 
 // convolution methods
-pixel* ConvolveInX(pixel* image, kernel_1d kernel, int width, int height, int type);
-pixel* ConvolveInY(pixel* image, kernel_1d kernel, int width, int height, int type);
+pixel* ConvolveInX(pixel* image, kernel_1d kernel, int width, int height);
+pixel* ConvolveInY(pixel* image, kernel_1d kernel, int width, int height);
 
 /* 
 // edge detection
