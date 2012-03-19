@@ -7,22 +7,26 @@
 #include <stdlib.h>
 #include "ImProc_pixels.h"
 
-#define MIN3(x,y,z)  ((y) <= (z) ? \
-                         ((x) <= (y) ? (x) : (y)) \
-                     : \
-                         ((x) <= (z) ? (x) : (z)))
+#define MIN3(x,y,z)  ((y) <= (z) ?		\
+		      ((x) <= (y) ? (x) : (y))	\
+		      :				\
+		      ((x) <= (z) ? (x) : (z)))
 
-#define MAX3(x,y,z)  ((y) >= (z) ? \
-                         ((x) >= (y) ? (x) : (y)) \
-                     : \
-                         ((x) >= (z) ? (x) : (z)))
+#define MAX3(x,y,z)  ((y) >= (z) ?		\
+		      ((x) >= (y) ? (x) : (y))	\
+		      :				\
+		      ((x) >= (z) ? (x) : (z)))
 
 #define FLOAT	0
 #define INT 	1
-#define ADD		0
-#define SUB		1
-#define MUL		2
-#define DIV		3
+#define PIXEL	3
+#define ADD     0
+#define SUB	1
+#define MUL	2
+#define DIV	3
+#define SQR     4
+#define SQRT    5
+
 
 // grayscale point operations
 unsigned char* Invert_Pixels_Gray(unsigned char* image, int width, int height)
@@ -422,16 +426,16 @@ pixel* Gamma_Corr_ND(pixel* image, double alpha, int width, int height, pixel* o
 
 pixel* Modify_Alpha_ND(pixel* image, int alpha, int width, int height, pixel* output)
 {
-	int i = 0;
-	int length = width * height;
+  int i = 0;
+  int length = width * height;
 
-	for(i; i < length; i++)
-	{
-		pixel p = image[i];
-		p.alpha += alpha;
-		output[i] = p;
-	}
-	return output;
+  for(i; i < length; i++)
+    {
+      pixel p = image[i];
+      p.alpha += alpha;
+      output[i] = p;
+    }
+  return output;
 }
 
 /*
@@ -443,134 +447,134 @@ pixel* Modify_Alpha_ND(pixel* image, int alpha, int width, int height, pixel* ou
 
 pixel* Auto_Contrast(pixel* image, int width, int height)
 {
-  int i;
-  unsigned char r_low, r_high, g_low, g_high, b_low, b_high;
-  i = r_low = r_high = g_low = g_high = b_low = b_high = 0;
-  int length = width * height;
+int i;
+unsigned char r_low, r_high, g_low, g_high, b_low, b_high;
+i = r_low = r_high = g_low = g_high = b_low = b_high = 0;
+int length = width * height;
 
-  // allocate memory for "2d" histogram
-  unsigned long** histogram = malloc(3*sizeof(long*));
-  for(i = 0; i < 3; i++)
-    {
-      histogram[i] = (long*)malloc(256*sizeof(long));
-    }
+// allocate memory for "2d" histogram
+unsigned long** histogram = malloc(3*sizeof(long*));
+for(i = 0; i < 3; i++)
+{
+histogram[i] = (long*)malloc(256*sizeof(long));
+}
 
-  // initialize histogram
-  for(i = 0; i < 256; i++)
-    {
-      histogram[0][i] = 0;
-      histogram[1][i] = 0;
-      histogram[2][i] = 0;
-    }
-  Histogram_RGB(image, width, height, histogram);
+// initialize histogram
+for(i = 0; i < 256; i++)
+{
+histogram[0][i] = 0;
+histogram[1][i] = 0;
+histogram[2][i] = 0;
+}
+Histogram_RGB(image, width, height, histogram);
  
-  // get low r value
-  i = 0;
-  while(r_low == 0){
-    if(histogram[0][i] != 0) r_low = i;
-    i++;
-  }
+// get low r value
+i = 0;
+while(r_low == 0){
+if(histogram[0][i] != 0) r_low = i;
+i++;
+}
 
-  // get high r value
-  i = 0;
-  while(r_high == 0){
-    if(histogram[0][255-i] != 0) r_high = 255-i;
-    i++;
-  }
+// get high r value
+i = 0;
+while(r_high == 0){
+if(histogram[0][255-i] != 0) r_high = 255-i;
+i++;
+}
 
 // get low g value
-  i = 0;
-  while(g_low == 0){
-    if(histogram[1][i] != 0) g_low = i;
-    i++;
-  }
+i = 0;
+while(g_low == 0){
+if(histogram[1][i] != 0) g_low = i;
+i++;
+}
 
-  // get high g value
-  i = 0;
-  while(g_high == 0){
-    if(histogram[1][255-i] != 0) g_high = 255-i;
-    i++;
-  }
+// get high g value
+i = 0;
+while(g_high == 0){
+if(histogram[1][255-i] != 0) g_high = 255-i;
+i++;
+}
 
 // get low b value
-  i = 0;
-  while(b_low == 0){
-    if(histogram[2][i] != 0) b_low = i;
-    i++;
-  }
+i = 0;
+while(b_low == 0){
+if(histogram[2][i] != 0) b_low = i;
+i++;
+}
 
-  // get high b value
-  i = 0;
-  while(b_high == 0){
-    if(histogram[2][255-i] != 0) b_high = 255-i;
-    i++;
-  }
+// get high b value
+i = 0;
+while(b_high == 0){
+if(histogram[2][255-i] != 0) b_high = 255-i;
+i++;
+}
 
-  for(i = 0; i < length; i++)
-    {
-      // compute new pixel data
-      pixel newPixel;
-      pixel oldPixel = image[i];
+for(i = 0; i < length; i++)
+{
+// compute new pixel data
+pixel newPixel;
+pixel oldPixel = image[i];
 
-      // red values
-      newPixel.red = oldPixel.red - r_low;
-      newPixel.red = newPixel.red * (255.0/(r_high-r_low));
+// red values
+newPixel.red = oldPixel.red - r_low;
+newPixel.red = newPixel.red * (255.0/(r_high-r_low));
 
-      // green values
-     newPixel.green = oldPixel.green - g_low;
-     newPixel.green = newPixel.green * (255.0/(g_high-g_low));
+// green values
+newPixel.green = oldPixel.green - g_low;
+newPixel.green = newPixel.green * (255.0/(g_high-g_low));
 
-      // blue values
-     newPixel.blue = oldPixel.blue - b_low;
-     newPixel.blue = newPixel.blue * (255.0/(b_high-b_low));
+// blue values
+newPixel.blue = oldPixel.blue - b_low;
+newPixel.blue = newPixel.blue * (255.0/(b_high-b_low));
 
-     image[i] = newPixel;
-    }
+image[i] = newPixel;
+}
 
-  free(histogram);
-  return image;
+free(histogram);
+return image;
 }
 
 pixel* Histogram_Eq(pixel* image, int width, int height)
 {
-  int i;
-  int length = width * height;
+int i;
+int length = width * height;
  
-  // allocate memory for "2d" histogram
-  unsigned long** histogram = malloc(3*sizeof(long*));
-  for(i = 0; i < 3; i++)
-    {
-      histogram[i] = malloc(256*sizeof(long));
-    }
+// allocate memory for "2d" histogram
+unsigned long** histogram = malloc(3*sizeof(long*));
+for(i = 0; i < 3; i++)
+{
+histogram[i] = malloc(256*sizeof(long));
+}
 
-  // initialize histogram
-  for(i = 0; i < 256; i++)
-    {
-      histogram[0][i] = 0;
-      histogram[1][i] = 0;
-      histogram[2][i] = 0;
-    }
+// initialize histogram
+for(i = 0; i < 256; i++)
+{
+histogram[0][i] = 0;
+histogram[1][i] = 0;
+histogram[2][i] = 0;
+}
 
-  Cum_Histogram_RGB(image, width, height, histogram);
+Cum_Histogram_RGB(image, width, height, histogram);
 
-  for(i = 0; i < length; i++)
-    {
-      pixel* oldPixel = &image[i];
+for(i = 0; i < length; i++)
+{
+pixel* oldPixel = &image[i];
     
-      oldPixel->red = round(histogram[0][oldPixel->red] * (255.0/length));
-      oldPixel->green = round(histogram[1][oldPixel->green] * (255.0/length));
-      oldPixel->blue = round(histogram[2][oldPixel->blue] * (255.0/length));
-    }
-  for(i = 0; i < length; i++)
-    {
-      pixel* oldPixel = &image[i];
-      unsigned long test = histogram[0][i];
-	oldPixel->red = 0;
+oldPixel->red = round(histogram[0][oldPixel->red] * (255.0/length));
+oldPixel->green = round(histogram[1][oldPixel->green] * (255.0/length));
+oldPixel->blue = round(histogram[2][oldPixel->blue] * (255.0/length));
+}
+for(i = 0; i < length; i++)
+{
+pixel* oldPixel = &image[i];
+unsigned long test = histogram[0][i];
+oldPixel->red = 0;
       
-    }
+}
 
-  free(histogram);
-  return image;
+free(histogram);
+return image;
 }
 
 */
@@ -698,7 +702,7 @@ pixel* RGB_to_Gray_PixelArray(pixel* image, int width, int height)
 }
 
 // RGB-HSV conversion routines
-hsv_pixel* image_rgb_to_hsv(pixel* rgb_image, int width, int height, hsv_pixel* hsv_image)
+hsv_pixel* Image_RGB_to_HSV(pixel* rgb_image, int width, int height, hsv_pixel* hsv_image)
 {
   int i = 0;
   int length = width * height;
@@ -752,7 +756,7 @@ hsv_pixel pixel_rgb_to_hsv(pixel* rgb)
   return hsv;
 }
 
-pixel* image_hsv_to_rgb(hsv_pixel* hsv_image, int width, int height, pixel* rgb_image)
+pixel* Image_HSV_to_RGB(hsv_pixel* hsv_image, int width, int height, pixel* rgb_image)
 {
   int i = 0;
   int length = width * height;
@@ -797,7 +801,7 @@ pixel pixel_hsv_to_rgb(hsv_pixel* hsv)
   return rgb;
 }
 
-pixel* image_copy(pixel* image, int width, int height)
+pixel* pixel_copy(pixel* image, int width, int height)
 {
   int i = 0;
   int length = width * height;
@@ -811,333 +815,434 @@ pixel* image_copy(pixel* image, int width, int height)
   return copy;
 }
 
+pixelInt* pixelInt_copy(pixelInt* image, int width, int height)
+{
+  int i = 0;
+  int length = width * height;
+  pixelInt* copy = malloc(length*sizeof(pixelInt));
+
+  for(i; i < length; i++)
+    {
+      copy[i] = image[i];
+    }
+  return copy;
+}
+
 // routine for combining two images
-pixel* image_copyBits(pixel* image1, pixel* image2, int width, int height, int type)
+pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int type)
 {
-	int i = 0;
-	int length = width * height;
-	int tempRed, tempGreen, tempBlue;
+  int i = 0;
+  int length = width * height;
+  int tempRed, tempGreen, tempBlue;
 
-	// addition
-	if(type == ADD)
+  // addition
+  if(type == ADD)
+    {
+      for(i; i < length; i++)
 	{
-		for(i; i < length; i++)
-		{
-			tempRed = image1[i].red + image2[i].red;
-			tempGreen = image1[i].green + image2[i].green;
-			tempBlue = image1[i].blue + image2[i].blue;
+	  tempRed = image1[i].red + image2[i].red;
+	  tempGreen = image1[i].green + image2[i].green;
+	  tempBlue = image1[i].blue + image2[i].blue;
 
-			// clamp values
-			tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-			tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-			tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+	  // clamp values
+	  tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	  tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	  tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
 
-			image1[i].red = (unsigned char)tempRed;
-			image1[i].green = (unsigned char)tempGreen;
-			image1[i].blue = (unsigned char)tempBlue;
-		}
+	  image1[i].red = (unsigned char)tempRed;
+	  image1[i].green = (unsigned char)tempGreen;
+	  image1[i].blue = (unsigned char)tempBlue;
 	}
+    }
 
-	// subtraction
-	else if(type == SUB)
+  // subtraction
+  else if(type == SUB)
+    {
+      for(i; i < length; i++)
 	{
-		for(i; i < length; i++)
-		{
-			tempRed = image1[i].red - image2[i].red;
-			tempGreen = image1[i].green - image2[i].green;
-			tempBlue = image1[i].blue - image2[i].blue;
+	  tempRed = image1[i].red - image2[i].red;
+	  tempGreen = image1[i].green - image2[i].green;
+	  tempBlue = image1[i].blue - image2[i].blue;
 
-			// clamp values
-			tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-			tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-			tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+	  // clamp values
+	  tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	  tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	  tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
 
-			image1[i].red = (unsigned char)tempRed;
-			image1[i].green = (unsigned char)tempGreen;
-			image1[i].blue = (unsigned char)tempBlue;
-		}
+	  image1[i].red = (unsigned char)tempRed;
+	  image1[i].green = (unsigned char)tempGreen;
+	  image1[i].blue = (unsigned char)tempBlue;
 	}
+    }
 
-	// TODO - add multiplication and division
-	return image1;
+  // TODO - add multiplication and division
+  return image1;
 }
 
-pixel* image_pointOp(pixel* image, float alpha, int width, int height, int type)
+pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
 {
-	int i = 0;
-	int length = width * height;
-	int tempRed, tempGreen, tempBlue;
-	int intAlpha = (int)alpha;
+  int i = 0;
+  int length = width * height;
+  int tempRed, tempGreen, tempBlue;
+  int intAlpha = (int)alpha;
 
-	// if alpha corresponds to an integer value then do int ops to save time
-	if(ceilf(alpha) == alpha)
+  // if alpha corresponds to an integer value then do int ops to save time
+  if(ceilf(alpha) == alpha)
+    {
+      if(type == ADD)
 	{
-		if(type == ADD)
-		{
-			for(i; i < length; i++)
-			{
-				tempRed = image[i].red + intAlpha;
-				tempGreen = image[i].green + intAlpha;
-				tempBlue = image[i].blue + intAlpha;
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red + intAlpha;
+	      tempGreen = image[i].green + intAlpha;
+	      tempBlue = image[i].blue + intAlpha;
 
-				// clamp values
-				tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-				tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-				tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
 
-				image[i].red = (unsigned char)tempRed;
-				image[i].green = (unsigned char)tempGreen;
-				image[i].blue = (unsigned char)tempBlue;
-			}
-		}
-
-		else if(type == SUB)
-		{
-			for(i; i < length; i++)
-			{
-				tempRed = image[i].red - intAlpha;
-				tempGreen = image[i].green - intAlpha;
-				tempBlue = image[i].blue - intAlpha;
-
-				// clamp values
-				tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-				tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-				tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
-
-				image[i].red = (unsigned char)tempRed;
-				image[i].green = (unsigned char)tempGreen;
-				image[i].blue = (unsigned char)tempBlue;
-			}
-		}
-
-		else if(type == MUL)
-		{
-			for(i; i < length; i++)
-			{
-				tempRed = image[i].red * intAlpha;
-				tempGreen = image[i].green * intAlpha;
-				tempBlue = image[i].blue * intAlpha;
-
-				// clamp values
-				tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-				tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-				tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
-
-				image[i].red = (unsigned char)tempRed;
-				image[i].green = (unsigned char)tempGreen;
-				image[i].blue = (unsigned char)tempBlue;
-			}
-		}
-
-		else
-		{
-			for(i; i < length; i++)
-			{
-				tempRed = image[i].red / intAlpha;
-				tempGreen = image[i].green / intAlpha;
-				tempBlue = image[i].blue / intAlpha;
-
-				// clamp values
-				tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-				tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-				tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
-
-				image[i].red = (unsigned char)tempRed;
-				image[i].green = (unsigned char)tempGreen;
-				image[i].blue = (unsigned char)tempBlue;
-			}
-		}
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
 	}
 
-	else
-		{
-			if(type == ADD)
-			{
-				for(i; i < length; i++)
-				{
-					tempRed = image[i].red + alpha;
-					tempGreen = image[i].green + alpha;
-					tempBlue = image[i].blue + alpha;
+      else if(type == SUB)
+	{
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red - intAlpha;
+	      tempGreen = image[i].green - intAlpha;
+	      tempBlue = image[i].blue - intAlpha;
 
-					// clamp values
-					tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-					tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-					tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
 
-					image[i].red = (unsigned char)tempRed;
-					image[i].green = (unsigned char)tempGreen;
-					image[i].blue = (unsigned char)tempBlue;
-				}
-			}
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
+	}
 
-			else if(type == SUB)
-			{
-				for(i; i < length; i++)
-				{
-					tempRed = image[i].red - alpha;
-					tempGreen = image[i].green - alpha;
-					tempBlue = image[i].blue - alpha;
+      else if(type == MUL)
+	{
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red * intAlpha;
+	      tempGreen = image[i].green * intAlpha;
+	      tempBlue = image[i].blue * intAlpha;
 
-					// clamp values
-					tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-					tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-					tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
 
-					image[i].red = (unsigned char)tempRed;
-					image[i].green = (unsigned char)tempGreen;
-					image[i].blue = (unsigned char)tempBlue;
-				}
-			}
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
+	}
 
-			else if(type == MUL)
-			{
-				for(i; i < length; i++)
-				{
-					tempRed = image[i].red * alpha;
-					tempGreen = image[i].green * alpha;
-					tempBlue = image[i].blue * alpha;
+      else
+	{
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red / intAlpha;
+	      tempGreen = image[i].green / intAlpha;
+	      tempBlue = image[i].blue / intAlpha;
 
-					// clamp values
-					tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-					tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-					tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
 
-					image[i].red = (unsigned char)tempRed;
-					image[i].green = (unsigned char)tempGreen;
-					image[i].blue = (unsigned char)tempBlue;
-				}
-			}
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
+	}
+    }
 
-			else
-			{
-				for(i; i < length; i++)
-				{
-					tempRed = image[i].red / alpha;
-					tempGreen = image[i].green / alpha;
-					tempBlue = image[i].blue / alpha;
+  else
+    {
+      if(type == ADD)
+	{
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red + alpha;
+	      tempGreen = image[i].green + alpha;
+	      tempBlue = image[i].blue + alpha;
 
-					// clamp values
-					tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
-					tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
-					tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
 
-					image[i].red = (unsigned char)tempRed;
-					image[i].green = (unsigned char)tempGreen;
-					image[i].blue = (unsigned char)tempBlue;
-				}
-			}
-		}
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
+	}
+
+      else if(type == SUB)
+	{
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red - alpha;
+	      tempGreen = image[i].green - alpha;
+	      tempBlue = image[i].blue - alpha;
+
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
+	}
+
+      else if(type == MUL)
+	{
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red * alpha;
+	      tempGreen = image[i].green * alpha;
+	      tempBlue = image[i].blue * alpha;
+
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
+	}
+
+      else
+	{
+	  for(i; i < length; i++)
+	    {
+	      tempRed = image[i].red / alpha;
+	      tempGreen = image[i].green / alpha;
+	      tempBlue = image[i].blue / alpha;
+
+	      // clamp values
+	      tempRed = tempRed > 255 ? 255 : tempRed < 0 ? 0 : tempRed;
+	      tempGreen = tempGreen > 255 ? 255 : tempGreen < 0 ? 0 : tempGreen;
+	      tempBlue = tempBlue > 255 ? 255 : tempBlue < 0 ? 0 : tempBlue;
+
+	      image[i].red = (unsigned char)tempRed;
+	      image[i].green = (unsigned char)tempGreen;
+	      image[i].blue = (unsigned char)tempBlue;
+	    }
+	}
+    }
 }
 
-// convert int array back to image after working outside of char bounds
-pixel* intArray_to_image(int* intArray, int width, int height, pixel* image)
+pixelInt* pixel_to_pixelInt(pixel* image, int width, int height, pixelInt* newImage)
 {
-	int i, j;
-	int image_length = (width * height)/3;
+  int i, j;
+  int length = width * height;
+  if(newImage == NULL)
+    newImage = malloc(length*sizeof(pixelInt));
 
-	if(image == NULL)
-		image = malloc(image_length*sizeof(pixel));
-
-	for(i = 0; i < image_length; i++)
-	{
-		j = i*3;
-		image[i].red = intArray[j] > 255 ? 255 : intArray[j] < 0 ? 0 : intArray[j];
-		image[i].green = intArray[j+1] > 255 ? 255 : intArray[j+1] < 0 ? 0 : intArray[j+1];
-		image[i].blue = intArray[j+2] > 255 ? 255 : intArray[j+2] < 0 ? 0 : intArray[j+2];
-		image[i].alpha = 255;
-	}
-	return image;
+  for(i = 0; i < length; i++)
+    {
+      newImage[i].red = image[i].red;
+      newImage[i].green = image[i].green;
+      newImage[i].blue = image[i].blue;
+    }
+  return newImage;
 }
 
-// convert an image to an int array in order to work outside of char bounds
-// NOTE: alpha values are not copied; save the original image to pass to reverse conversion
-//       function if you want to add in alpha values after conversion using Modify_Alpha
-int* image_to_intArray(pixel* image, int width, int height, int* intArray)
+pixel* pixelInt_to_pixel(pixelInt* image, int width, int height, pixel* newImage)
 {
-	int i, j;
-	int array_length = (width * height) * 3;
-	if(intArray == NULL)
-		intArray = malloc(array_length*sizeof(int));
+  int i, j;
+  int length = width * height;
 
-	for(i = 0; i < width*height; i++)
-	{
-		j = i*3;
+  if(newImage == NULL)
+    newImage = malloc(length*sizeof(pixel));
 
-		intArray[j] = image[i].red;
-		intArray[j+1] = image[i].green;
-		intArray[j+2] = image[i].blue;
-	}
-	return intArray;
+  for(i = 0; i < length; i++)
+    {
+      newImage[i].red = image[i].red > 255 ? 255 : image[i].red < 0 ? 0 : image[i].red;
+      newImage[i].green = image[i].green > 255 ? 255 : image[i].green < 0 ? 0 : image[i].green;
+      newImage[i].blue = image[i].blue > 255 ? 255 : image[i].blue < 0 ? 0 : image[i].blue;
+      newImage[i].alpha = 255;
+    }
+  return newImage;
 }
 
-int* intArray_copyBits(int* intArray1, int* intArray2, int width, int height, int type)
+// routine for combining two images
+pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int height, int type)
 {
-	int i = 0;
-	int length = width * height;
+  int i = 0;
+  int length = width * height;
+  int tempRed, tempGreen, tempBlue;
 
-	if(type == ADD)
-		for(i; i < length; i++)
-			intArray1[i] += intArray2[i];
+  // addition
+  if(type == ADD)
+    {
+      for(i; i < length; i++)
+	{
+	  image1[i].red += image2[i].red;
+	  image1[i].green += image2[i].green;
+	  image1[i].blue += image2[i].blue;
+	}
+    }
 
-	else if(type == SUB)
-		for(i; i < length; i++)
-			intArray1[i] -= intArray2[i];
+  // subtraction
+  else if(type == SUB)
+    {
+      for(i; i < length; i++)
+	{
+	  image1[i].red -= image2[i].red;
+	  image1[i].green -= image2[i].green;
+	  image1[i].blue -= image2[i].blue;
+	}
+    }
 
-	else if(type == MUL)
-		for(i; i < length; i++)
-			intArray1[i] *= intArray2[i];
-
-	else
-		for(i; i < length; i++)
-			intArray1[i] /= intArray2[i];
-
-	return intArray1;
+  // TODO - add multiplication and division
+  return image1;
 }
 
-int* intArray_pointOp(int* intArray, float alpha, int width, int height, int type)
+pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, int type)
 {
-	int i = 0;
-	int length = width * height;
-	int intAlpha = (int)alpha;
+  int i = 0;
+  int length = width * height;
+  int intAlpha = (int)alpha;
 
-	// if alpha corresponds to an integer value then do int ops to save time
-	if(ceilf(alpha)==alpha)
+  // if alpha corresponds to an integer value then do int ops to save time
+  if(ceilf(alpha) == alpha)
+    {
+      if(type == ADD)
 	{
-		if(type == ADD)
-			for(i; i < length; i++)
-				intArray[i] += intAlpha;
-		else if(type == SUB)
-			for(i; i < length; i++)
-				intArray[i] -= intAlpha;
-		else if(type == MUL)
-			for(i; i < length; i++)
-				intArray[i] *= intAlpha;
-		else
-			for(i; i < length; i++)
-				intArray[i] /= intAlpha;
+	  for(i; i < length; i++)
+	    {
+	      image[i].red += intAlpha;
+	      image[i].green += intAlpha;
+	      image[i].blue += intAlpha;
+	    }
 	}
 
-	// if alpha corresponds to an integer value then do int ops to save time
-	else
+      else if(type == SUB)
 	{
-		if(type == ADD)
-			for(i; i < length; i++)
-				intArray[i] += alpha;
-		else if(type == SUB)
-			for(i; i < length; i++)
-				intArray[i] -= alpha;
-		else if(type == MUL)
-			for(i; i < length; i++)
-				intArray[i] *= alpha;
-		else
-			for(i; i < length; i++)
-				intArray[i] /= alpha;
+	  for(i; i < length; i++)
+	    {
+	      image[i].red -= intAlpha;
+	      image[i].green -= intAlpha;
+	      image[i].blue -= intAlpha;
+	    }
 	}
-	return intArray;
+
+      else if(type == MUL)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red *= intAlpha;
+	      image[i].green *= intAlpha;
+	      image[i].blue *= intAlpha;
+	    }
+	}
+      else if(type == SQR)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red = pow(image[i].red, 2);
+	      image[i].green = pow(image[i].green, 2);
+	      image[i].blue = pow(image[i].blue, 2);
+	    }
+	}
+      else if(type == SQRT)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red = sqrt(image[i].red);
+	      image[i].green = sqrt(image[i].green);
+	      image[i].blue = sqrt(image[i].blue);
+	    }
+	}
+      else
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red /= intAlpha;
+	      image[i].green /= intAlpha;
+	      image[i].blue /= intAlpha;
+	    }
+	}
+    }
+
+  else
+    {
+       if(type == ADD)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red += alpha;
+	      image[i].green += alpha;
+	      image[i].blue += alpha;
+	    }
+	}
+
+      else if(type == SUB)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red -= alpha;
+	      image[i].green -= alpha;
+	      image[i].blue -= alpha;
+	    }
+	}
+
+      else if(type == MUL)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red *= alpha;
+	      image[i].green *= alpha;
+	      image[i].blue *= alpha;
+	    }
+	}
+      else if(type == SQR)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red = pow(image[i].red, 2);
+	      image[i].green = pow(image[i].green, 2);
+	      image[i].blue = pow(image[i].blue, 2);
+	    }
+	}
+      else if(type == SQRT)
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red = sqrt(image[i].red);
+	      image[i].green = sqrt(image[i].green);
+	      image[i].blue = sqrt(image[i].blue);
+	    }
+	}
+      else
+	{
+	  for(i; i < length; i++)
+	    {
+	      image[i].red /= alpha;
+	      image[i].green /= alpha;
+	      image[i].blue /= alpha;
+	    }
+	}
+    }
 }
 
 // spatial filter methods
-// the kernel must be freed by calling function 
+// the kernel must be freed by calling function
 kernel_1d Make_Gaussian_1d_Kernel(double sigma)
 {
   int i = 0;
@@ -1162,15 +1267,15 @@ kernel_1d Make_Gaussian_1d_Kernel(double sigma)
   double min;
   min = kernel_d[0];
   for(i = 1; i < length; i++)
-	 if(kernel_d[i] < min) min = kernel_d[i];
+    if(kernel_d[i] < min) min = kernel_d[i];
 
   double coeff = 1.0/min;
   int sum = 0;
   for(i = 0; i < length; i++)
-  {
-	  kernel_i[i] = (int)(kernel_d[i] * coeff);
-	  sum += kernel_i[i];
-  }
+    {
+      kernel_i[i] = (int)(kernel_d[i] * coeff);
+      sum += kernel_i[i];
+    }
 
   newKernel.kernel_int = kernel_i;
   newKernel.kernel_double = kernel_d;
@@ -1182,281 +1287,408 @@ kernel_1d Make_Gaussian_1d_Kernel(double sigma)
 
 pixel* Gaussian_Blur(pixel* image, double sigma, int width, int height, int type)
 {
-	// compute the kernel
-	kernel_1d kernel = Make_Gaussian_1d_Kernel(sigma);
+  // compute the kernel
+  kernel_1d kernel = Make_Gaussian_1d_Kernel(sigma);
 
-	// if float computation then normalize kernel
-	if(type == FLOAT)
+  // if float computation then normalize kernel
+  if(type == FLOAT)
+    {
+      double sum = 0;
+      int i = 0;
+      for(i; i < kernel.length; i++)
 	{
-		double sum = 0;
-		int i = 0;
-		for(i; i < kernel.length; i++)
-		{
-			sum += kernel.kernel_double[i];
-		}
-		for(i = 0; i < kernel.length; i++)
-		{
-			kernel.kernel_double[i] = kernel.kernel_double[i]/sum;
-		}
+	  sum += kernel.kernel_double[i];
 	}
+      for(i = 0; i < kernel.length; i++)
+	{
+	  kernel.kernel_double[i] = kernel.kernel_double[i]/sum;
+	}
+    }
 
-	// convolve
-	ConvolveInX(image, kernel, width, height, type);
-	ConvolveInY(image, kernel, width, height, type);
+  // create pixelInt array for convolution
+  pixelInt* cimage = pixel_to_pixelInt(image, width, height, NULL);
 
-	// free the kernel pointers
-	free(kernel.kernel_double);
-	free(kernel.kernel_int);
+  // convolve
+  convolve_in_X(cimage, kernel, width, height, type);
+  convolve_in_Y(cimage, kernel, width, height, type);
 
-	return image;
+  // convert back to pixel arrray
+  pixelInt_to_pixel(cimage, width, height, image);
+
+  // free the kernel pointers and pixelInt image
+  free(kernel.kernel_double);
+  free(kernel.kernel_int);
+  free(cimage);
+
+  return image;
 }
 
-pixel* Blur_Or_Sharpen(pixel* image, double sigma, float w, int width, int height, int type)
+pixel* Blur_Or_Sharpen(pixel* image, float w, int width, int height, int type, pixel* output)
 {
-	// w must be between -1 and 1
-	if(w < -1 || w > 1)
-		return NULL;
+  // w must be between -1 and 1
+  if(w < -1 || w > 1)
+    return NULL;
 
-	// compute the kernel
-	kernel_1d kernel = Make_Gaussian_1d_Kernel(sigma);
+  // build box filter kernel
+  int box_filter[5] = {1, 1, 1, 1, 1};
+  kernel_1d box_kernel;
+  box_kernel.kernel_int = box_filter;
+  box_kernel.length = 5;
+  box_kernel.sum = 5;
 
-	// if float computation then normalize kernel
-	if(type == FLOAT)
-	{
-		double sum = 0;
-		int i = 0;
-		for(i; i < kernel.length; i++)
-		{
-			sum += kernel.kernel_double[i];
-		}
-		for(i = 0; i < kernel.length; i++)
-		{
-			kernel.kernel_double[i] = kernel.kernel_double[i]/sum;
-		}
-	}
+  // build pixelInt array from image so we can work outside char bounds
+  pixelInt* image1 = pixel_to_pixelInt(image, width, height, NULL);
+  pixelInt* image2 = pixel_to_pixelInt(image, width, height, NULL);
 
-	// build intArray from image so we can work outside char bounds
-	int* intArray1 = image_to_intArray(image, width, height, NULL);
-	intArray_pointOp(intArray1, 1+w, width*3, height, 2);
+  pixelInt_pointOp(image1, 1+w, width, height, 2);
 
-	// convolve
-	ConvolveInX(image, kernel, width, height, type);
-	ConvolveInY(image, kernel, width, height, type);
+  // convolve
+  convolve_in_X(image2, box_kernel, width, height, type);
+  convolve_in_Y(image2, box_kernel, width, height, type);
 
-	// build intArray from image so we can work outside char bounds
-	int* intArray2 = image_to_intArray(image, width, height, NULL);
-	intArray_pointOp(intArray2, w, width*3, height, 2);
+  pixelInt_pointOp(image2, w, width, height, 2);
+  pixelInt_combine(image1, image2, width, height, 1);
+  pixelInt_to_pixel(image1, width, height, output);
 
-	intArray_copyBits(intArray1, intArray2, width*3, height, 1);
+  // free the kernel pointers, int arrays
+  free(image1);
+  free(image2);
 
-	intArray_to_image(intArray1, width*3, height, image);
-
-	// free the kernel pointers, int arrays
-	free(kernel.kernel_double);
-	free(kernel.kernel_int);
-	free(intArray1);
-	free(intArray2);
-
-	return image;
+  return output;
 }
 
+pixel* Fast_Blur(pixel* image, int width, int height)
+{
+  int i = 0;
+  int length = width * height;
+
+  // build box filter kernel
+  int box_filter[3] = {1, 1, 1};
+  kernel_1d box_kernel;
+  box_kernel.kernel_int = box_filter;
+  box_kernel.length = 3;
+  box_kernel.sum = 3;
+
+  // convolve
+  pixelInt* cimage = pixel_to_pixelInt(image, width, height, NULL);
+  convolve_in_X(cimage, box_kernel, width, height, 1);
+  convolve_in_Y(cimage, box_kernel, width, height, 1);
+  pixelInt_to_pixel(cimage, width, height, image);
+
+  free(cimage);
+  return image;
+}
+
+pixel* Fast_Sharpen(pixel* image, int width, int height)
+{
+   int i = 0;
+   int length = width * height;
+
+   // build box filter kernel
+   int laplacian [3] = {1, -2, 1};
+   kernel_1d sharpen_kernel;
+   sharpen_kernel.kernel_int = laplacian;
+   sharpen_kernel.length = 3;
+   sharpen_kernel.sum = 0;
+
+   // create copy for convolution
+   pixelInt* image1 = pixel_to_pixelInt(image, width, height, NULL);
+   pixelInt* image2 = pixel_to_pixelInt(image, width, height, NULL);
+
+   // convolve
+   convolve_in_X(image2, sharpen_kernel, width, height, 1);
+   convolve_in_Y(image2, sharpen_kernel, width, height, 1);
+
+   pixelInt_combine(image1, image2, width, height, SUB);
+   pixelInt_to_pixel(image1, width, height, image);
+
+   free(image1);
+   free(image2);
+
+   return image;
+}
+
+
+pixel* Unsharp_Masking(pixel* image, float sigma, float w, int width, int height, int type, pixel* output)
+{
+ // w must be between 0 and 1
+  if(w < 0 || w > 1)
+    return NULL;
+
+  // compute the kernel
+  kernel_1d kernel = Make_Gaussian_1d_Kernel(sigma);
+
+  // if float computation then normalize kernel
+  if(type == FLOAT)
+    {
+      double sum = 0;
+      int i = 0;
+      for(i; i < kernel.length; i++)
+	{
+	  sum += kernel.kernel_double[i];
+	}
+      for(i = 0; i < kernel.length; i++)
+	{
+	  kernel.kernel_double[i] = kernel.kernel_double[i]/sum;
+	}
+    }
+
+  // build pixelInt array from image so we can work outside char bounds
+  pixelInt* image1 = pixel_to_pixelInt(image, width, height, NULL);
+  pixelInt* image2 = pixel_to_pixelInt(image, width, height, NULL);
+
+  pixelInt_pointOp(image1, 1+w, width, height, 2);
+
+  // convolve
+  convolve_in_X(image2, kernel, width, height, type);
+  convolve_in_Y(image2, kernel, width, height, type);
+
+  pixelInt_pointOp(image2, w, width, height, 2);
+  pixelInt_combine(image1, image2, width, height, 1);
+  pixelInt_to_pixel(image1, width, height, output);
+
+  // free the kernel pointers, int arrays
+  free(kernel.kernel_int);
+  free(kernel.kernel_double);
+  free(image1);
+  free(image2);
+
+  return output;
+}
+
+// edge detection
+pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height)
+{
+  int i = 0;
+  int length = width * height;
+
+  // compute the kernel
+  kernel_1d g_kernel = Make_Gaussian_1d_Kernel(sigma);
+
+  // build box filter kernel
+  int derivative [3] = {1, 0, -1};
+  kernel_1d d_kernel;
+  d_kernel.kernel_int = derivative;
+  d_kernel.length = 3;
+  // this is not technically the sum but we want to normalize by 1/2
+  d_kernel.sum = 2;
+
+  // create copy for convolution
+  pixelInt* image1 = pixel_to_pixelInt(image, width, height, NULL);
+   
+  // convolve in X
+  convolve_in_X(image1, g_kernel, width, height, INT);
+  convolve_in_Y(image1, g_kernel, width, height, INT);
+
+  pixelInt* image2 = pixelInt_copy(image1, width, height);
+  convolve_in_X(image1, d_kernel, width, height, INT);
+  convolve_in_Y(image2, d_kernel, width, height, INT);
+
+  pixelInt_pointOp(image1, 0.0, width, height, SQR);
+  pixelInt_pointOp(image2, 0.0, width, height, SQR);
+
+  pixelInt_combine(image1, image2, width, height, ADD);
+  pixelInt_pointOp(image1, 0.0, width, height, SQRT);
+
+  pixelInt_to_pixel(image1, width, height, image);
+  Threshold_D(image, 5, width, height);
+  
+  // free memory
+  free(image1);
+  free(image2);
+
+  return image;
+}
 
 // convolution methods
-pixel* ConvolveInX(pixel* image, kernel_1d kernel, int width, int height, int type)
+pixelInt* convolve_in_X(pixelInt* image, kernel_1d kernel, int width, int height, int d_type)
 {
   // need to make duplicate image
-  pixel* copy = image_copy(image, width, height);
-
+  pixelInt* copy = pixelInt_copy(image, width, height);
+  int length = width * height;
   int r = kernel.length/2;
   int w = width - 2 * r;
   int i, j, k;
 
   // use float convolution for precise, non real-time processing
-  if(type == FLOAT)
-  {
-	  double rsum, gsum, bsum, red, green, blue;
+  if(d_type == FLOAT)
+    {
+      double rsum, gsum, bsum, red, green, blue;
 
-	  for(j = 0; j < height; j++)
-	  {
-		  for(i = -r; i < width-r; i++)
-		  {
-			  int l = ((i + w) % w);
-			  rsum = 0;
-			  gsum = 0;
-			  bsum = 0;
-			  for(k = -r; k <= r; k++)
-			  {
-				  pixel p = *(copy+(j*width)+l+k+r);
-				  red = p.red;
-				  green = p.green;
-				  blue = p.blue;
+      for(j = 0; j < height; j++)
+	{
+	  for(i = -r; i < width-r; i++)
+	    {
+	      int l = ((i + w) % w);
+	      rsum = 0;
+	      gsum = 0;
+	      bsum = 0;
+	      for(k = -r; k <= r; k++)
+		{
+		  pixelInt p = *(copy+(j*width)+l+k+r);
+		  red = p.red;
+		  green = p.green;
+		  blue = p.blue;
 
-				  // double p = copy.getf(l+k+r,j);
-				  rsum += red * kernel.kernel_double[k+r];
-				  gsum += green * kernel.kernel_double[k+r];
-				  bsum += blue * kernel.kernel_double[k+r];
-			  }
-			  // !! finish proper pointer computation here
-			  pixel p;
+		  // double p = copy.getf(l+k+r,j);
+		  rsum += red * kernel.kernel_double[k+r];
+		  gsum += green * kernel.kernel_double[k+r];
+		  bsum += blue * kernel.kernel_double[k+r];
+		}
+	      
+	      pixelInt p;
 
-			  // clamp values
-			  rsum = rsum > 255 ? 255 : rsum < 0 ? 0 : rsum;
-			  gsum = gsum > 255 ? 255 : gsum < 0 ? 0 : gsum;
-			  bsum = bsum > 255 ? 255 : bsum < 0 ? 0 : bsum;
+	      // round floats
+	      p.red = (int)rsum;
+	      p.green = (int)gsum;
+	      p.blue = (int)bsum;
 
-			  // round floats
-			  p.red = (unsigned char)rsum;
-			  p.green = (unsigned char)gsum;
-			  p.blue = (unsigned char)bsum;
-
-			  *(image+(j*width)+(i+r)) = p;
-		  }
-	  }
-  }
+	      *(image+(j*width)+(i+r)) = p;
+	    }
+	}
+    }
 
   // use int convolution for faster results but some slight data loss
   else
     {
-  	  int rsum, gsum, bsum, red, green, blue;
+      int rsum, gsum, bsum, red, green, blue;
 
-  	  for(j = 0; j < height; j++)
-  	  {
-  		  for(i = -r; i < width-r; i++)
-  		  {
-  			  int l = ((i + w) % w);
-  			  rsum = 0;
-  			  gsum = 0;
-  			  bsum = 0;
-  			  for(k = -r; k <= r; k++)
-  			  {
-  				  pixel p = *(copy+(j*width)+l+k+r);
-  				  red = (int)p.red;
-  				  green = (int)p.green;
-  				  blue = (int)p.blue;
+      for(j = 0; j < height; j++)
+	{
+	  for(i = -r; i < width-r; i++)
+	    {
+	      int l = ((i + w) % w);
+	      rsum = 0;
+	      gsum = 0;
+	      bsum = 0;
+	      for(k = -r; k <= r; k++)
+		{
+		  pixelInt p = *(copy+(j*width)+l+k+r);
+		  red = p.red;
+		  green = p.green;
+		  blue = p.blue;
 
-  				  rsum += red * kernel.kernel_int[k+r];
-  				  gsum += green * kernel.kernel_int[k+r];
-  				  bsum += blue * kernel.kernel_int[k+r];
-  			  }
+		  rsum += red * kernel.kernel_int[k+r];
+		  gsum += green * kernel.kernel_int[k+r];
+		  bsum += blue * kernel.kernel_int[k+r];
+		}
 
-  			  // normalize values
-  			  float redf, greenf, bluef;
-  			  redf = ((float)rsum)/kernel.sum;
-  			  greenf = ((float)gsum)/kernel.sum;
-  			  bluef = ((float)bsum)/kernel.sum;
+	      // store the results to intermediate array
+	      int offset = (j*width+i+r);
+	      image[offset].red = rsum;
+	      image[offset].green = gsum;
+	      image[offset].blue = bsum;
+	    }
+	}
 
-  			  // clamp values
-  			  redf = redf > 255 ? 255 : redf < 0 ? 0 : redf;
-  			  greenf = greenf > 255 ? 255 : greenf < 0 ? 0 : greenf;
-  			  bluef = bluef > 255 ? 255 : bluef < 0 ? 0 : bluef;
-
-  			  // round floats
-  			  pixel p;
-  			  p.red = (unsigned char)redf;
-  			  p.green = (unsigned char)greenf;
-  			  p.blue = (unsigned char)bluef;
-
-  			  *(image+(j*width)+(i+r)) = p;
-  		  }
-  	  }
+      // normalize results if kernel sum != 0
+      if(kernel.sum != 0)
+	{
+	  for(i = 0; i < length; i++)
+	    {
+	      // normalize values
+	      float redf, greenf, bluef;
+	      image[i].red = ((float)image[i].red)/kernel.sum;
+	      image[i].green = ((float)image[i].green)/kernel.sum;
+	      image[i].blue = ((float)image[i].blue)/kernel.sum;
+	    }
+	}
     }
   free(copy);
 }
-
-pixel* ConvolveInY(pixel* image, kernel_1d kernel, int width, int height, int type)
+pixelInt* convolve_in_Y(pixelInt* image, kernel_1d kernel, int width, int height, int d_type)
 {
   // need to make duplicate image
-  pixel* copy = image_copy(image, width, height);
-
+  pixelInt* copy = pixelInt_copy(image, width, height);
+  int length = width * height;
   int r = kernel.length/2;
   int w = height - 2 * r;
   int i, j, k;
 
-  if(type == FLOAT)
-  {
-	  double rsum, gsum, bsum, red, green, blue;
+  if(d_type == FLOAT)
+    {
+      double rsum, gsum, bsum, red, green, blue;
 
-	  for(i = 0; i < width; i++)
-	  {
-		  for(j = -r; j < height-r; j++)
-		  {
-			  int l = ((j + w) % w);
-			  rsum = 0.0;
-			  gsum = 0.0;
-			  bsum = 0.0;
-			  for(k = -r; k <= r; k++)
-			  {
-				  pixel p = *(copy+i+(width*(l+k+r)));
-				  red = p.red;
-				  green = p.green;
-				  blue = p.blue;
+      for(i = 0; i < width; i++)
+	{
+	  for(j = -r; j < height-r; j++)
+	    {
+	      int l = ((j + w) % w);
+	      rsum = 0.0;
+	      gsum = 0.0;
+	      bsum = 0.0;
+	      for(k = -r; k <= r; k++)
+		{
+		  pixelInt p = *(copy+i+(width*(l+k+r)));
+		  red = p.red;
+		  green = p.green;
+		  blue = p.blue;
 
-				  // double p = copy.getf(l+k+r,j);
-				  rsum += red * kernel.kernel_double[k+r];
-				  gsum += green * kernel.kernel_double[k+r];
-				  bsum += blue * kernel.kernel_double[k+r];
-			  }
-			  pixel p;
+		  // double p = copy.getf(l+k+r,j);
+		  rsum += red * kernel.kernel_double[k+r];
+		  gsum += green * kernel.kernel_double[k+r];
+		  bsum += blue * kernel.kernel_double[k+r];
+		}
+	      pixelInt p;
 
-			  // clamp values
-			  rsum = rsum > 255 ? 255 : rsum < 0 ? 0 : rsum;
-			  gsum = gsum > 255 ? 255 : gsum < 0 ? 0 : gsum;
-			  bsum = bsum > 255 ? 255 : bsum < 0 ? 0 : bsum;
+	      // round floats
+	      p.red = (int)rsum;
+	      p.green = (int)gsum;
+	      p.blue = (int)bsum;
 
-			  // round floats
-			  p.red = (unsigned char)rsum;
-			  p.green = (unsigned char)gsum;
-			  p.blue = (unsigned char)bsum;
+	      *(image+(width*(j+r)+i)) = p;
+	    }
+	}
+    }
 
-			  *(image+(width*(j+r)+i)) = p;
-		  }
-	  }
-  }
-
+  // the integer version; this contains a lot of tricky pointer arithmetic
+  // need to clean it up and look for ways to speed up computation
   else
     {
-  	  int rsum, gsum, bsum, red, green, blue;
+      int rsum, gsum, bsum, red, green, blue;
+      int length = width * height;
 
-  	  for(i = 0; i < width; i++)
-  	  {
-  		  for(j = -r; j < height-r; j++)
-  		  {
-  			  int l = ((j + w) % w);
-  			  rsum = 0.0;
-  			  gsum = 0.0;
-  			  bsum = 0.0;
-  			  for(k = -r; k <= r; k++)
-  			  {
-  				  pixel p = *(copy+i+(width*(l+k+r)));
-  				  red = p.red;
-  				  green = p.green;
-  				  blue = p.blue;
+      for(i = 0; i < width; i++)
+	{
+	  for(j = -r; j < height-r; j++)
+	    {
+	      int l = ((j + w) % w);
+	      rsum = 0.0;
+	      gsum = 0.0;
+	      bsum = 0.0;
+	      for(k = -r; k <= r; k++)
+		{
+		  pixelInt p = *(copy+i+(width*(l+k+r)));
+		  red = p.red;
+		  green = p.green;
+		  blue = p.blue;
 
-  				  // double p = copy.getf(l+k+r,j);
-  				  rsum += red * kernel.kernel_int[k+r];
-  				  gsum += green * kernel.kernel_int[k+r];
-  				  bsum += blue * kernel.kernel_int[k+r];
-  			  }
-  			 // normalize values
-  			  float redf, greenf, bluef;
-  			  redf = ((float)rsum)/kernel.sum;
-  			  greenf = ((float)gsum)/kernel.sum;
-  			  bluef = ((float)bsum)/kernel.sum;
+		  // double p = copy.getf(l+k+r,j);
+		  rsum += red * kernel.kernel_int[k+r];
+		  gsum += green * kernel.kernel_int[k+r];
+		  bsum += blue * kernel.kernel_int[k+r];
+		}
 
-  			  // clamp values
-  			  redf = redf > 255 ? 255 : redf < 0 ? 0 : redf;
-  			  greenf = greenf > 255 ? 255 : greenf < 0 ? 0 : greenf;
-  			  bluef = bluef > 255 ? 255 : bluef < 0 ? 0 : bluef;
+	      // store results to intermediate array
+	      int offset = width*(j+r)+(i);
+	      image[offset].red = rsum;
+	      image[offset].green = gsum;
+	      image[offset].blue = bsum;
+	    }
+	}
 
-  			  // round floats
-  			  pixel p;
-  			  p.red = (unsigned char)redf;
-  			  p.green = (unsigned char)greenf;
-  			  p.blue = (unsigned char)bluef;
-
-  			  *(image+(width*(j+r)+i)) = p;
-  		  }
-  	  }
+      // normalize results if kernel sum != 0
+      if(kernel.sum != 0)
+	{
+	  for(i = 0; i < length; i++)
+	    {
+	      // normalize values
+	      float redf, greenf, bluef;
+	      image[i].red = ((float)image[i].red)/kernel.sum;
+	      image[i].green = ((float)image[i].green)/kernel.sum;
+	      image[i].blue = ((float)image[i].blue)/kernel.sum;
+	    }
+	}
     }
   free(copy);
 }

@@ -1,3 +1,10 @@
+// Nathan Wingert - u0687928
+// Image Processing Library
+// Naming Semantics - All methods called from outside the library have leading capital letters
+//                    All utility methods called from within the library have leading lowercase letters
+//                    Utility methods should generally not be called from outside the library unless the
+//                    implementer understands the function usage and memory allocations involved
+
 #ifndef ADD_H_GUARD
 #define ADD_H_GUARD
 
@@ -7,6 +14,12 @@ typedef struct pixel{
   unsigned char blue;
   unsigned char alpha;
 } pixel;
+
+typedef struct pixelInt{
+  int red;
+  int green;
+  int blue;
+} pixelInt;
 
 typedef struct hsv_pixel{
   double hue;
@@ -81,35 +94,44 @@ pixel* RGB_to_Gray_PixelArray(pixel* image, int width, int height);
 // RGB-HSV conversion routines
 // These methods appear to convert back and forth with no loss; need more testing?
 // Any other cool way to use this?
-hsv_pixel* image_rgb_to_hsv(pixel* rgb_image, int width, int height, hsv_pixel* hsv_image);
+hsv_pixel* Image_RGB_to_HSV(pixel* rgb_image, int width, int height, hsv_pixel* hsv_image);
+pixel* Image_HSV_to_RGB(hsv_pixel* hsv_image, int width, int height, pixel* rgb_image);
 hsv_pixel pixel_rgb_to_hsv(pixel* rgb);
-pixel* image_hsv_to_rgb(hsv_pixel* hsv_image, int width, int height, pixel* rgb_image);
 pixel pixel_hsv_to_rgb(hsv_pixel* hsv);
 
 // utility methods - type conversion, image combination, point operations
 // caller must free memory for new copy of image
-pixel* image_copy(pixel* image, int width, int height);
-pixel* image_copyBits(pixel* image1, pixel* image2, int width, int height, int type);
-pixel* image_pointOp(pixel* image, float alpha, int width, int height, int type);
-pixel* intArray_to_image(int* intArray, int width, int height, pixel* image);
-int* image_to_intArray(pixel* image, int width, int height, int* intArray);
-int* intArray_copyBits(int* intArray1, int* intArray2, int width, int height, int type);
-int* intArray_pointOp(int* intArray, float alpha, int width, int height, int type);
+pixel* pixel_copy(pixel* image, int width, int height);
+pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int type);
+pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type);
+pixel* pixelInt_to_pixel(pixelInt* image, int width, int height, pixel* newImage);
+pixelInt* pixel_to_pixelInt(pixel* image, int width, int height, pixelInt* newImage);
+pixelInt* pixelInt_copy(pixelInt* image, int width, int height);
+pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int height, int type);
+pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, int type);
 
 // spatial filter methods
 kernel_1d Make_Gaussian_1d_Kernel(double sigma);
 pixel* Gaussian_Blur(pixel* image, double sigma, int width, int height, int type);
-pixel* Blur_Or_Sharpen(pixel* image, double sigma, float w, int width, int height, int type);
+pixel* Blur_Or_Sharpen(pixel* image, float w, int width, int height, int type, pixel* output);
+pixel* Fast_Blur(pixel* image, int width, int height);
+pixel* Fast_Sharpen(pixel* image, int width, int height);
+pixel* Unsharp_Masking(pixel* image, float sigma, float w, int width, int height, int type, pixel* output);
+
+// edge detection
+pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height);
 
 // convolution methods
-pixel* ConvolveInX(pixel* image, kernel_1d kernel, int width, int height, int type);
-pixel* ConvolveInY(pixel* image, kernel_1d kernel, int width, int height, int type);
+// all pixel arrays must be converted to and from pixelInt arrays for convolution
+pixelInt* convolve_in_X(pixelInt* image, kernel_1d kernel, int width, int height, int d_type);
+pixelInt* convolve_in_Y(pixelInt* image, kernel_1d kernel, int width, int height, int d_type);
 
 /* 
 // edge detection
-gradient magnitude routine 
+gradient magnitude routine
 sobel edge detection
 prewitt edge detection
+LoG detection
 
 // morphological filters
 erode
