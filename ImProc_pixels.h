@@ -102,13 +102,13 @@ pixel pixel_hsv_to_rgb(hsv_pixel* hsv);
 // utility methods - type conversion, image combination, point operations
 // caller must free memory for new copy of image
 pixel* pixel_copy(pixel* image, int width, int height);
-pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int type);
-pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type);
+pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int ctype);
+pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int ctype);
 pixel* pixelInt_to_pixel(pixelInt* image, int width, int height, pixel* newImage);
 pixelInt* pixel_to_pixelInt(pixel* image, int width, int height, pixelInt* newImage);
 pixelInt* pixelInt_copy(pixelInt* image, int width, int height);
-pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int height, int type);
-pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, int type);
+pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int height, int ctype);
+pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, int ctype);
 
 // spatial filter methods
 kernel_1d Make_Gaussian_1d_Kernel(double sigma);

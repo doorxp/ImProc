@@ -829,14 +829,14 @@ pixelInt* pixelInt_copy(pixelInt* image, int width, int height)
 }
 
 // routine for combining two images
-pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int type)
+pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int ctype)
 {
   int i = 0;
   int length = width * height;
   int tempRed, tempGreen, tempBlue;
 
   // addition
-  if(type == ADD)
+  if(ctype == ADD)
     {
       for(i; i < length; i++)
 	{
@@ -856,7 +856,7 @@ pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int ty
     }
 
   // subtraction
-  else if(type == SUB)
+  else if(ctype == SUB)
     {
       for(i; i < length; i++)
 	{
@@ -879,7 +879,7 @@ pixel* pixel_combine(pixel* image1, pixel* image2, int width, int height, int ty
   return image1;
 }
 
-pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
+pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int ctype)
 {
   int i = 0;
   int length = width * height;
@@ -889,7 +889,7 @@ pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
   // if alpha corresponds to an integer value then do int ops to save time
   if(ceilf(alpha) == alpha)
     {
-      if(type == ADD)
+      if(ctype == ADD)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -908,7 +908,7 @@ pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
 	    }
 	}
 
-      else if(type == SUB)
+      else if(ctype == SUB)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -927,7 +927,7 @@ pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
 	    }
 	}
 
-      else if(type == MUL)
+      else if(ctype == MUL)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -968,7 +968,7 @@ pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
 
   else
     {
-      if(type == ADD)
+      if(ctype == ADD)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -987,7 +987,7 @@ pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
 	    }
 	}
 
-      else if(type == SUB)
+      else if(ctype == SUB)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1006,7 +1006,7 @@ pixel* pixel_pointOp(pixel* image, float alpha, int width, int height, int type)
 	    }
 	}
 
-      else if(type == MUL)
+      else if(ctype == MUL)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1081,14 +1081,14 @@ pixel* pixelInt_to_pixel(pixelInt* image, int width, int height, pixel* newImage
 }
 
 // routine for combining two images
-pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int height, int type)
+pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int height, int ctype)
 {
   int i = 0;
   int length = width * height;
   int tempRed, tempGreen, tempBlue;
 
   // addition
-  if(type == ADD)
+  if(ctype == ADD)
     {
       for(i; i < length; i++)
 	{
@@ -1099,7 +1099,7 @@ pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int he
     }
 
   // subtraction
-  else if(type == SUB)
+  else if(ctype == SUB)
     {
       for(i; i < length; i++)
 	{
@@ -1113,7 +1113,7 @@ pixelInt* pixelInt_combine(pixelInt* image1, pixelInt* image2, int width, int he
   return image1;
 }
 
-pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, int type)
+pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, int ctype)
 {
   int i = 0;
   int length = width * height;
@@ -1122,7 +1122,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
   // if alpha corresponds to an integer value then do int ops to save time
   if(ceilf(alpha) == alpha)
     {
-      if(type == ADD)
+      if(ctype == ADD)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1132,7 +1132,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	    }
 	}
 
-      else if(type == SUB)
+      else if(ctype == SUB)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1142,7 +1142,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	    }
 	}
 
-      else if(type == MUL)
+      else if(ctype == MUL)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1151,7 +1151,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	      image[i].blue *= intAlpha;
 	    }
 	}
-      else if(type == SQR)
+      else if(ctype == SQR)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1160,7 +1160,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	      image[i].blue = pow(image[i].blue, 2);
 	    }
 	}
-      else if(type == SQRT)
+      else if(ctype == SQRT)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1182,7 +1182,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 
   else
     {
-       if(type == ADD)
+       if(ctype == ADD)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1192,7 +1192,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	    }
 	}
 
-      else if(type == SUB)
+      else if(ctype == SUB)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1202,7 +1202,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	    }
 	}
 
-      else if(type == MUL)
+      else if(ctype == MUL)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1211,7 +1211,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	      image[i].blue *= alpha;
 	    }
 	}
-      else if(type == SQR)
+      else if(ctype == SQR)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1220,7 +1220,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	      image[i].blue = pow(image[i].blue, 2);
 	    }
 	}
-      else if(type == SQRT)
+      else if(ctype == SQRT)
 	{
 	  for(i; i < length; i++)
 	    {
@@ -1285,13 +1285,13 @@ kernel_1d Make_Gaussian_1d_Kernel(double sigma)
   return newKernel;
 }
 
-pixel* Gaussian_Blur(pixel* image, double sigma, int width, int height, int type)
+pixel* Gaussian_Blur(pixel* image, double sigma, int width, int height, int dtype)
 {
   // compute the kernel
   kernel_1d kernel = Make_Gaussian_1d_Kernel(sigma);
 
   // if float computation then normalize kernel
-  if(type == FLOAT)
+  if(dtype == FLOAT)
     {
       double sum = 0;
       int i = 0;
@@ -1309,8 +1309,8 @@ pixel* Gaussian_Blur(pixel* image, double sigma, int width, int height, int type
   pixelInt* cimage = pixel_to_pixelInt(image, width, height, NULL);
 
   // convolve
-  convolve_in_X(cimage, kernel, width, height, type);
-  convolve_in_Y(cimage, kernel, width, height, type);
+  convolve_in_X(cimage, kernel, width, height, dtype);
+  convolve_in_Y(cimage, kernel, width, height, dtype);
 
   // convert back to pixel arrray
   pixelInt_to_pixel(cimage, width, height, image);
