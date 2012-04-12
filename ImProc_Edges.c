@@ -56,7 +56,7 @@ pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height, pix
   return output;
 }
 
-pixel* Fast_Edges(pixel* image, int blur_size, int width, int height, pixel* output)
+pixel* Fast_Edges(pixel* image, int blur_size, int threshold, int width, int height, pixel* output)
 {
 	int i;
 	int length = width * height;
@@ -70,7 +70,7 @@ pixel* Fast_Edges(pixel* image, int blur_size, int width, int height, pixel* out
 	d_kernel.sum = 2;
 
 	// blur kernel using fast blur method
-	Fast_Blur(image, blur_size, width, height, output);
+	Fast_Blur_Gray(image, blur_size, width, height, output);
 
 	// convert to int array for fast grayscale convolution
 	int* image1 = RGB_to_Gray_IntArray(output, width, height, NULL);
@@ -98,11 +98,47 @@ pixel* Fast_Edges(pixel* image, int blur_size, int width, int height, pixel* out
 	// convert back to pixel array
 	IntArray_to_PixelArray(image1, width, height, output);
 
-	Threshold(output, 10, width, height, output);
+	Threshold(output, threshold, width, height, output);
 
 	// free allocated memory
 	free(image1);
 	free(image2);
+
+	return output;
+}
+
+pixel* Test_Edges(pixel* image, int threshold, int width, int height, pixel* output)
+{
+	int i, j, a, b, sum;
+	int length = width * height;
+	short quick_mask[3][3] =  {
+       {-1,  0, -1},
+       { 0,  4,  0},
+       {-1,  0, -1} };
+
+	RGB_to_Gray_PixelArray(image, width, height, image);
+
+	for(i=1; i<height-1; i++){
+      for(j=1; j<width-1; j++){
+         sum = 0;
+         for(a=-1; a<2; a++){
+            for(b=-1; b<2; b++){
+               sum = sum + image[(i*width)+(a*width)+j+b].red * quick_mask[a+1][b+1];
+            }
+         }
+         if(sum < 0)   sum = 0;
+         if(sum > 255) sum = 255;
+         
+		 pixel newPixel;
+		 newPixel.red = newPixel.green = newPixel.blue = sum;
+		 newPixel.alpha = 255;
+		 output[i*width + j] = newPixel;
+
+      }  /* ends loop over j */
+   }  /* ends loop over i */
+
+	// threshold
+	Threshold(output, threshold, width, height, output);
 
 	return output;
 }

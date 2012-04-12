@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "ImProc_Histogram.h"
+#include "ImProc_Utils.h"
 
 // automatic contrast "enhancement" methods
 // !! these methods are not properly defined for color images
@@ -20,45 +21,72 @@ pixel* Histogram_Eq_Gray(pixel* image, int width, int height, pixel* output)
   int i;
   int length = width * height;
  
-  // allocate memory for "2d" histogram
-  unsigned long** histogram = malloc(3*sizeof(long*));
-  for(i = 0; i < 3; i++)
-    {
-      histogram[i] = malloc(256*sizeof(long));
-    }
+  // convert to grayscale
+  RGB_to_Gray_PixelArray(image, width, height, output);
 
-  // initialize histogram
+  // allocate/initialize memory for grayscale histogram
+  unsigned long* histogram = malloc(256*sizeof(long));
   for(i = 0; i < 256; i++)
-    {
-      histogram[0][i] = 0;
-      histogram[1][i] = 0;
-      histogram[2][i] = 0;
-    }
+      histogram[i] = 0;
 
-  Cum_Histogram_Color(image, width, height, histogram);
+  Cum_Histogram_Lum(output, width, height, histogram);
 
   for(i = 0; i < length; i++)
     {
-      pixel oldPixel = image[i];
+      pixel oldPixel = output[i];
+
+      // any val would work here since they are all the same for gray
+      int val = oldPixel.red;
+      int newVal = round(histogram[val] * (255.0/length));
     
-      oldPixel.red = round(histogram[0][oldPixel.red] * (255.0/length));
-      oldPixel.green = round(histogram[1][oldPixel.green] * (255.0/length));
-      oldPixel.blue = round(histogram[2][oldPixel.blue] * (255.0/length));
+      oldPixel.red = newVal;
+      oldPixel.green = newVal;
+      oldPixel.blue = newVal;
 
       output[i] = oldPixel;
     }
-/*
-  for(i = 0; i < length; i++)
-    {
-      pixel* oldPixel = &image[i];
-      unsigned long test = histogram[0][i];
-      oldPixel->red = 0;
-      
-    }
-*/
+
   free(histogram);
   return output;
 }
+
+// convert image to hsv color space and run histogram equilization on intensity values
+pixel* Histogram_Eq_Color(pixel* image, int width, int height, pixel* output)
+{
+	int i;
+	int length = width * height;
+	
+	// convert image to hsv color sapce
+	hsv_pixel* hsv_image = malloc(length*sizeof(hsv_pixel));
+	Image_RGB_to_HSV(image, width, height, hsv_image);
+
+	// initialize vals array and histogram
+	pixel* hsv_vals = malloc(length*sizeof(pixel));
+
+	// compute vals array
+	for(i = 0; i < length; i++)
+	{
+		pixel newPixel;
+		newPixel.red = newPixel.green = newPixel.blue = round(hsv_image[i].val*255.0);
+	    hsv_vals[i] = newPixel;
+	}
+	// build rgb image from hsv vals
+		
+	// run histogram equilization on hsv vals
+	Histogram_Eq_Gray(hsv_vals, width, height, hsv_vals);
+	
+	// copy hsv vals back to original image
+	for(i = 0; i < length; i++)
+	  hsv_image[i].val = hsv_vals[i].red/255.0;
+		
+	// convert equalized hsv image back to rgb 
+	Image_HSV_to_RGB(hsv_image, width, height, output);
+	
+	free(hsv_image);
+	free(hsv_vals);
+	return output;
+}
+
 
 // analysis 
 unsigned long* Histogram_Lum(pixel* image, int width, int height, unsigned long* histogram)
@@ -118,9 +146,9 @@ unsigned long* Cum_Histogram_Lum(pixel* image, int width, int height, unsigned l
  
   Histogram_Lum(image, width, height, histogram);
 
-  for(i = 1; i < length; i++)
+  for(i = 1; i < 256; i++)
     {
-      histogram[i] = histogram[i-1];
+      histogram[i] = histogram[i-1] + histogram[i];
     }
 
   return histogram;
@@ -133,7 +161,7 @@ unsigned long** Cum_Histogram_Color(pixel* image, int width, int height, unsigne
 
   Histogram_Color(image, width, height, histogram);
 
-  for(i = 1; i < 255; i++)
+  for(i = 1; i < 256; i++)
     {
       histogram[0][i] = histogram[0][i-1] + histogram[0][i];
       histogram[1][i] = histogram[1][i-1] + histogram[1][i];
@@ -143,3 +171,4 @@ unsigned long** Cum_Histogram_Color(pixel* image, int width, int height, unsigne
 
   return histogram;
 }
+

@@ -1,4 +1,4 @@
-// ImProc_Edges.h
+// ImProc_Color.h
 /*  
  *  Library Organization:
  *  The library is organized in a modular fashion to allow inclusion of selected functionality.
@@ -16,26 +16,23 @@
  *  ImProc_Edges:     Contains all edge detection functionality
  *  ImProc_Filters:   Contains all spatial filter functionality
  *  ImProc_Histogram: Contains functionality for histogram calculation and equilization
+ *  ImProc_Color:     Contains functionality for adjusting color components in multiple spaces
  *  
  *  Note: All data structure and macro definitions are contained in ImProc_Base, ImProc_Utils, and ImProc_Convolve
  */
 
-#ifndef EDGES_H
-#define EDGES_H
+#ifndef COLOR_H
+#define COLOR_H
 
+#define R 0
+#define G 1
+#define B 2
+#define H 0
+#define S 1
+#define V 2
+
+#include <stdlib.h>
 #include "ImProc_Base.h"
+#include "ImProc_Utils.h"
 
-// edge detection
-pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height, pixel* output);
-pixel* Fast_Edges(pixel* image, int blur_size, int threshold, int width, int height, pixel* output);
-pixel* Test_Edges(pixel* image, int threshold, int width, int height, pixel* output);
-
-/* 
-// edge detection
-gradient magnitude routine
-sobel edge detection
-prewitt edge detection
-LoG detection
-*/
-
-#endif
+pixel* Adjust_RGB(pixel* image, int channel, int alpha, int width, int height, pixel* output); 

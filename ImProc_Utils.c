@@ -450,6 +450,7 @@ pixelInt* pixelInt_pointOp(pixelInt* image, float alpha, int width, int height, 
 	    }
 	}
     }
+  return image;
 }
 
 // RGB to grayscale conversion 1:

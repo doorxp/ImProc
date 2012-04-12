@@ -126,7 +126,7 @@ pixel* Blur_Or_Sharpen(pixel* image, float w, int width, int height, int type, p
 }
 
 // use floating convolution with 1d box filter to speed up blurring
-pixel* Fast_Blur(pixel* image, int size, int width, int height, pixel* output)
+pixel* Fast_Blur_Gray(pixel* image, int size, int width, int height, pixel* output)
 {
 	int length = width * height;
 
@@ -218,7 +218,6 @@ pixel* Fast_Sharpen(pixel* image, int width, int height, pixel* output)
 
 	return output;
 }
-
 
 pixel* Unsharp_Masking(pixel* image, float sigma, float w, int width, int height, int type, pixel* output)
 {
