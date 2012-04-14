@@ -1,4 +1,4 @@
-// ImProc_Edges.h
+// ImProc_Effects.h
 /*  
  *  Library Organization:
  *  The library is organized in a modular fashion to allow inclusion of selected functionality.
@@ -15,20 +15,17 @@
  *                    !! ImProc_Base MUST be included for all module implementations
  *  ImProc_Edges:     Contains all edge detection functionality
  *  ImProc_Filters:   Contains all spatial filter functionality
- *  ImProc_Histogram: Contains functionality for histogram calculation and equilization
+ *  ImProc_Histogram: Contains functionality for histogram calculation and equalization
  *  
  *  Note: All data structure and macro definitions are contained in ImProc_Base, ImProc_Utils, and ImProc_Convolve
  */
-
-#ifndef EDGES_H
-#define EDGES_H
+ 
+#ifndef EFFECTS_H
+#define EFFECTS_H
 
 #include "ImProc_Base.h"
 
-// edge detection
-pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height, pixel* output);
-pixel* Prewitt_Edges(pixel* image, int blur_size, int threshold, int alpha, int width, int height, pixel* output);
-pixel* Sobel_Edges(pixel* image, int threshold, int alpha, int width, int height, pixel* output);
-pixel* Fast_Edges(pixel* image, int threshold, int width, int height, pixel* output);
+pixel* Cartoon(pixel* image, int lines, int colors, int width, int height, pixel* output);
+pixel* Posterize(pixel* image, int levels, int width, int height, pixel* output);
 
 #endif

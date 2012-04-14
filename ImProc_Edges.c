@@ -12,7 +12,10 @@
 #include "ImProc_Edges.h"
 #include "ImProc_Filters.h"
 
-// edge detection
+// gradient magnitude is a fully parameterized edge detection routine that uses gaussian
+// blurring and thresholding to create a customizeable edge map. due to the higher
+// computation cost of the gaussian blurring and the sqrt() operation it will not run
+// quickly enough for high-quality real-time processing
 pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height, pixel* output)
 {
   int i = 0;
@@ -56,7 +59,7 @@ pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height, pix
   return output;
 }
 
-pixel* Fast_Edges(pixel* image, int blur_size, int threshold, int width, int height, pixel* output)
+pixel* Prewitt_Edges(pixel* image, int blur_size, int threshold, int alpha, int width, int height, pixel* output)
 {
 	int i;
 	int length = width * height;
@@ -73,7 +76,7 @@ pixel* Fast_Edges(pixel* image, int blur_size, int threshold, int width, int hei
 	Fast_Blur_Gray(image, blur_size, width, height, output);
 
 	// convert to int array for fast grayscale convolution
-	int* image1 = RGB_to_Gray_IntArray(output, width, height, NULL);
+	int* image1 = RGB_to_Gray_IntArray(image, width, height, NULL);
 	int* image2 = malloc(length * sizeof(int));
 	memcpy(image2, image1, length*sizeof(int));
 
@@ -90,15 +93,13 @@ pixel* Fast_Edges(pixel* image, int blur_size, int threshold, int width, int hei
 
 	// combine x/y gradient
 	for(i = 0; i < length; i++)
-	{
 		image1[i] += image2[i];
-		image1[i] = sqrt(image1[i]);
-	}
 
 	// convert back to pixel array
 	IntArray_to_PixelArray(image1, width, height, output);
 
-	Threshold(output, threshold, width, height, output);
+	if(threshold == 1)
+		Threshold(output, alpha, width, height, output);
 
 	// free allocated memory
 	free(image1);
@@ -107,7 +108,62 @@ pixel* Fast_Edges(pixel* image, int blur_size, int threshold, int width, int hei
 	return output;
 }
 
-pixel* Test_Edges(pixel* image, int threshold, int width, int height, pixel* output)
+pixel* Sobel_Edges(pixel* image, int threshold, int alpha, int width, int height, pixel* output)
+{
+	int i;
+	int length = width * height;
+
+	// build derivative kernel
+	int derivative [3] = {1, 0, -1};
+	kernel_1d d_kernel;
+	d_kernel.kernel_int = derivative;
+	d_kernel.length = 3;
+	// this is not technically the sum but we want to normalize by 1/2
+	d_kernel.sum = 2;
+
+	// build blur kernel
+	int blur [3] = {1, 2, 1};
+	kernel_1d b_kernel;
+	b_kernel.kernel_int = blur;
+	b_kernel.length = 3;
+	b_kernel.sum = 4;
+
+	// convert to int array for fast grayscale convolution
+	int* image1 = RGB_to_Gray_IntArray(image, width, height, NULL);
+	int* image2 = malloc(length * sizeof(int));
+	memcpy(image2, image1, length*sizeof(int));
+
+	// convolve with derivative kernel
+	gray_convolve_in_Y(image1, b_kernel, width, height);
+	gray_convolve_in_X(image2, b_kernel, width, height);
+	gray_convolve_in_X(image1, d_kernel, width, height);
+	gray_convolve_in_Y(image2, d_kernel, width, height);
+
+	// square images
+	for(i = 0; i < length; i++)
+	{
+		image1[i] = pow(image1[i], 2);
+		image2[i] = pow(image2[i], 2);
+	}
+
+	// combine x/y gradient
+	for(i = 0; i < length; i++)
+		image1[i] += image2[i];
+
+	// convert back to pixel array
+	IntArray_to_PixelArray(image1, width, height, output);
+
+	if(threshold == 1)
+		Threshold(output, alpha, width, height, output);
+
+	// free allocated memory
+	free(image1);
+	free(image2);
+
+	return output;
+}
+
+pixel* Fast_Edges(pixel* image, int threshold, int width, int height, pixel* output)
 {
 	int i, j, a, b, sum;
 	int length = width * height;
@@ -128,7 +184,7 @@ pixel* Test_Edges(pixel* image, int threshold, int width, int height, pixel* out
          }
          if(sum < 0)   sum = 0;
          if(sum > 255) sum = 255;
-         
+
 		 pixel newPixel;
 		 newPixel.red = newPixel.green = newPixel.blue = sum;
 		 newPixel.alpha = 255;
