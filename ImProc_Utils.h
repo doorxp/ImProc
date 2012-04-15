@@ -64,4 +64,7 @@ pixel* Image_HSV_to_RGB(hsv_pixel* hsv_image, int width, int height, pixel* rgb_
 hsv_pixel pixel_rgb_to_hsv(pixel* rgb);
 pixel pixel_hsv_to_rgb(hsv_pixel* hsv);
 
+// transform methods
+pixel* Rotate(pixel* image, int degrees, int width, int height, pixel* output);
+
 #endif

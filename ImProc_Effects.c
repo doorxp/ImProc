@@ -67,3 +67,8 @@ pixel* Posterize(pixel* image, int levels, int width, int height, pixel* output)
 
 	return output;
 }
+
+pixel* Sketch(pixel* image, int alpha, int width, int height, pixel* output)
+{
+
+}

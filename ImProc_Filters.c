@@ -190,6 +190,11 @@ pixel* Fast_Blur_Gray(pixel* image, int size, int width, int height, pixel* outp
 	return output;
 }
 
+pixel* Fast_Blur_Color(pixel* image, int size, int width, int height, pixel* output)
+{
+
+}
+
 pixel* Fast_Sharpen(pixel* image, int width, int height, pixel* output)
 {
 	int i = 0;
@@ -264,4 +269,22 @@ pixel* Unsharp_Masking(pixel* image, float sigma, float w, int width, int height
 	free(image2);
 
 	return output;
+}
+
+// non-linear filters
+// these filters use a simple 3x3 kernel; size is not adjustable
+
+pixel* Max_Filter(pixel* image, int width, int height, pixel* output)
+{
+
+}
+
+pixel* Min_Filter(pixel* image, int width, int height, pixel* output)
+{
+
+}
+
+pixel* Median_Filter(pixel* image, int width, int height, pixel* output)
+{
+
 }

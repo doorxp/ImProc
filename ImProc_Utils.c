@@ -617,3 +617,28 @@ pixel pixel_hsv_to_rgb(hsv_pixel* hsv)
   
   return rgb;
 }
+
+// transforms
+pixel* Rotate(pixel* image, int degrees, int width, int height, pixel* output)
+{
+	int i, j;
+	i = j = 0;
+	int newWidth = height;
+	int newHeight = width;
+
+	pixel newPixel;
+	newPixel.red = newPixel.green = newPixel.blue = 255;
+	newPixel.alpha = 255;
+
+	for(j = 0; j < height; j++)
+	{
+		for(i = 0; i < width; i++)
+		{
+			int originalOffset = j*width + i;
+			output[(height-j)+(i*height)] = image[j*width+i];
+		}
+	}
+
+
+	return output;
+}

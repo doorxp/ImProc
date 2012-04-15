@@ -28,7 +28,7 @@
 #include "ImProc_Convolve.h"
 #include "ImProc_Base.h"
 
-// spatial filter methods
+// linear filters
 kernel_1d Make_Gaussian_1d_Kernel(double sigma);
 pixel* Gaussian_Blur(pixel* image, double sigma, int width, int height, int type, pixel* output);
 pixel* Blur_Or_Sharpen(pixel* image, float w, int width, int height, int type, pixel* output);
@@ -36,5 +36,10 @@ pixel* Fast_Blur_Gray(pixel* image, int size, int width, int height, pixel* outp
 pixel* Fast_Blur_Color(pixel* image, int size, int width, int height, pixel* output);
 pixel* Fast_Sharpen(pixel* image, int width, int height, pixel* output);
 pixel* Unsharp_Masking(pixel* image, float sigma, float w, int width, int height, int type, pixel* output);
+
+// non-linear filters
+pixel* Max_Filter(pixel* image, int width, int height, pixel* output);
+pixel* Min_Filter(pixel* image, int width, int height, pixel* output);
+pixel* Median_Filter(pixel* image, int width, int height, pixel* output);
 
 #endif
