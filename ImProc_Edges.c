@@ -84,19 +84,9 @@ pixel* Prewitt_Edges(pixel* image, int blur_size, int threshold, int alpha, int 
 	gray_convolve_in_X(image1, d_kernel, width, height);
 	gray_convolve_in_Y(image2, d_kernel, width, height);
 
-	// square images
-	for(i = 0; i < length; i++)
-	{
-		image1[i] = pow(image1[i], 2);
-		image2[i] = pow(image2[i], 2);
-	}
-
 	// combine x/y gradient
 	for(i = 0; i < length; i++)
-		image1[i] += image2[i];
-
-	// convert back to pixel array
-	IntArray_to_PixelArray(image1, width, height, output);
+		output[i].red = output[i].green = output[i].blue = abs(image1[i]) + abs(image2[i]);
 
 	if(threshold == 1)
 		Threshold(output, alpha, width, height, output);
@@ -139,19 +129,9 @@ pixel* Sobel_Edges(pixel* image, int threshold, int alpha, int width, int height
 	gray_convolve_in_X(image1, d_kernel, width, height);
 	gray_convolve_in_Y(image2, d_kernel, width, height);
 
-	// square images
-	for(i = 0; i < length; i++)
-	{
-		image1[i] = pow(image1[i], 2);
-		image2[i] = pow(image2[i], 2);
-	}
-
 	// combine x/y gradient
 	for(i = 0; i < length; i++)
-		image1[i] += image2[i];
-
-	// convert back to pixel array
-	IntArray_to_PixelArray(image1, width, height, output);
+		output[i].red = output[i].green = output[i].blue = abs(image1[i]) + abs(image2[i]);
 
 	if(threshold == 1)
 		Threshold(output, alpha, width, height, output);
@@ -190,8 +170,8 @@ pixel* Fast_Edges(pixel* image, int threshold, int width, int height, pixel* out
 		 newPixel.alpha = 255;
 		 output[i*width + j] = newPixel;
 
-      }  /* ends loop over j */
-   }  /* ends loop over i */
+      }
+   }
 
 	// threshold
 	Threshold(output, threshold, width, height, output);

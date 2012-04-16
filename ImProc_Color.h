@@ -36,3 +36,5 @@
 
 pixel* Adjust_RGB(pixel* image, int channel, int alpha, int width, int height, pixel* output); 
 pixel* Adjust_HSV(pixel* image, int channel, int alpha, int width, int height, pixel* output);
+
+#endif
