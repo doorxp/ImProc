@@ -16,6 +16,8 @@
  *  ImProc_Edges:     Contains all edge detection functionality
  *  ImProc_Filters:   Contains all spatial filter functionality
  *  ImProc_Histogram: Contains functionality for histogram calculation and equalization
+ *  ImProc_Effects:	  Contains functionality for non-photorealistic effects
+ *  ImProc_Color:	  Contains functionality for color component manipulation
  *  
  *  Note: All data structure and macro definitions are contained in ImProc_Base, ImProc_Utils, and ImProc_Convolve
  */
@@ -27,6 +29,6 @@
 
 pixel* Cartoon(pixel* image, int lines, int colors, int width, int height, pixel* output);
 pixel* Posterize(pixel* image, int levels, int width, int height, pixel* output);
-pixel* Sketch(pixel* image, int alpha, int width, int height, pixel* output);
+pixel* Sketch(pixel* image, int threshold, int alpha, int width, int height, pixel* output);
 
 #endif

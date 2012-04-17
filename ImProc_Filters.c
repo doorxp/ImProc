@@ -192,7 +192,31 @@ pixel* Fast_Blur_Gray(pixel* image, int size, int width, int height, pixel* outp
 
 pixel* Fast_Blur_Color(pixel* image, int size, int width, int height, pixel* output)
 {
+	int i = 0;
+	int length = width * height;
 
+	// build box filter kernel
+	int* box = malloc(size*sizeof(int));
+	for(i = 0; i < size;  i++)
+		box[i] = 1;
+
+	kernel_1d blur_kernel;
+	blur_kernel.kernel_int = box;
+	blur_kernel.length = size;
+	blur_kernel.sum = size;
+
+	// create copy for convolution
+	pixelInt* image1 = pixel_to_pixelInt(image, width, height, NULL);
+
+	// convolve
+	convolve_in_X(image1, blur_kernel, width, height, 1);
+	convolve_in_Y(image1, blur_kernel, width, height, 1);
+
+	pixelInt_to_pixel(image1, width, height, output);
+
+	free(image1);
+
+	return output;
 }
 
 pixel* Fast_Sharpen(pixel* image, int width, int height, pixel* output)
@@ -276,15 +300,143 @@ pixel* Unsharp_Masking(pixel* image, float sigma, float w, int width, int height
 
 pixel* Max_Filter(pixel* image, int width, int height, pixel* output)
 {
+	int v, u, j, k, i;
 
+	const int K = 4;
+	int R[9];
+	int G[9];
+	int B[9];
+
+	for(v = 1; v <= height-2; v++)
+	{
+		for(u = 1; u <= width-2; u++)
+		{
+			int k = 0;
+			for(j = -1; j <= 1; j++)
+			{
+				for(i = -1; i <= 1; i++)
+				{
+					int offset = (v+j)*width + (u+i);
+					R[k] = (int)image[offset].red;
+					G[k] = (int)image[offset].green;
+					B[k] = (int)image[offset].blue;
+					k++;
+				}
+			}
+			sort(R, 0, 8);
+			sort(G, 0, 8);
+			sort(B, 0, 8);
+
+			pixel newPixel;
+			newPixel.red = (unsigned char)R[7];
+			newPixel.green = (unsigned char)G[7];
+			newPixel.blue = (unsigned char)B[7];
+			newPixel.alpha = 255;
+
+			output[v*width+u] = newPixel;
+		}
+	}
 }
 
 pixel* Min_Filter(pixel* image, int width, int height, pixel* output)
 {
+	int v, u, j, k, i;
 
+	const int K = 4;
+	int R[9];
+	int G[9];
+	int B[9];
+
+	for(v = 1; v <= height-2; v++)
+	{
+		for(u = 1; u <= width-2; u++)
+		{
+			int k = 0;
+			for(j = -1; j <= 1; j++)
+			{
+				for(i = -1; i <= 1; i++)
+				{
+					int offset = (v+j)*width + (u+i);
+					R[k] = (int)image[offset].red;
+					G[k] = (int)image[offset].green;
+					B[k] = (int)image[offset].blue;
+					k++;
+				}
+			}
+			sort(R, 0, 8);
+			sort(G, 0, 8);
+			sort(B, 0, 8);
+
+			pixel newPixel;
+			newPixel.red = (unsigned char)R[0];
+			newPixel.green = (unsigned char)G[0];
+			newPixel.blue = (unsigned char)B[0];
+			newPixel.alpha = 255;
+
+			output[v*width+u] = newPixel;
+		}
+	}
 }
 
 pixel* Median_Filter(pixel* image, int width, int height, pixel* output)
 {
+	int v, u, j, k, i;
 
+	const int K = 4;
+	int R[9];
+	int G[9];
+	int B[9];
+
+	for(v = 1; v <= height-2; v++)
+	{
+		for(u = 1; u <= width-2; u++)
+		{
+			int k = 0;
+			for(j = -1; j <= 1; j++)
+			{
+				for(i = -1; i <= 1; i++)
+				{
+					int offset = (v+j)*width + (u+i);
+					R[k] = (int)image[offset].red;
+					G[k] = (int)image[offset].green;
+					B[k] = (int)image[offset].blue;
+					k++;
+				}
+			}
+			sort(R, 0, 8);
+			sort(G, 0, 8);
+			sort(B, 0, 8);
+
+			pixel newPixel;
+			newPixel.red = (unsigned char)R[K];
+			newPixel.green = (unsigned char)G[K];
+			newPixel.blue = (unsigned char)B[K];
+			newPixel.alpha = 255;
+
+			output[v*width+u] = newPixel;
+		}
+	}
+}
+
+void swap(int *a, int *b)
+{
+  int t=*a; *a=*b; *b=t;
+}
+
+void sort(int arr[9], int beg, int end)
+{
+  if (end > beg + 1)
+  {
+    int piv = arr[beg], l = beg + 1, r = end;
+    while (l < r)
+    {
+      if (arr[l] <= piv)
+        l++;
+      else
+        swap(&arr[l], &arr[--r]);
+    }
+    swap(&arr[--l], &arr[beg]);
+    sort(arr, beg, l);
+    sort(arr, r, end);
+  }
 }

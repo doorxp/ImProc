@@ -15,8 +15,9 @@
  *                    !! ImProc_Base MUST be included for all module implementations
  *  ImProc_Edges:     Contains all edge detection functionality
  *  ImProc_Filters:   Contains all spatial filter functionality
- *  ImProc_Histogram: Contains functionality for histogram calculation and equilization
- *  ImProc_Color:     Contains functionality for adjusting color components in multiple spaces
+ *  ImProc_Histogram: Contains functionality for histogram calculation and equalization
+ *  ImProc_Effects:	  Contains functionality for non-photorealistic effects
+ *  ImProc_Color:	  Contains functionality for color component manipulation
  *  
  *  Note: All data structure and macro definitions are contained in ImProc_Base, ImProc_Utils, and ImProc_Convolve
  */
@@ -41,5 +42,7 @@ pixel* Unsharp_Masking(pixel* image, float sigma, float w, int width, int height
 pixel* Max_Filter(pixel* image, int width, int height, pixel* output);
 pixel* Min_Filter(pixel* image, int width, int height, pixel* output);
 pixel* Median_Filter(pixel* image, int width, int height, pixel* output);
+
+void sort(int arr[9], int beg, int end);
 
 #endif

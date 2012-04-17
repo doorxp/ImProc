@@ -15,8 +15,9 @@
  *                    !! ImProc_Base MUST be included for all module implementations
  *  ImProc_Edges:     Contains all edge detection functionality
  *  ImProc_Filters:   Contains all spatial filter functionality
- *  ImProc_Histogram: Contains functionality for histogram calculation and equilization
- *  ImProc_Color:     Contains functionality for adjusting color components in multiple spaces
+ *  ImProc_Histogram: Contains functionality for histogram calculation and equalization
+ *  ImProc_Effects:	  Contains functionality for non-photorealistic effects
+ *  ImProc_Color:	  Contains functionality for color component manipulation
  *  
  *  Note: All data structure and macro definitions are contained in ImProc_Base, ImProc_Utils, and ImProc_Convolve
  */
@@ -32,7 +33,6 @@
 #define V 2
 
 #include "ImProc_Base.h"
-#include "ImProc_Utils.h"
 
 pixel* Adjust_RGB(pixel* image, int channel, int alpha, int width, int height, pixel* output); 
 pixel* Adjust_HSV(pixel* image, int channel, int alpha, int width, int height, pixel* output);

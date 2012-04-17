@@ -68,7 +68,7 @@ pixel* Posterize(pixel* image, int levels, int width, int height, pixel* output)
 	return output;
 }
 
-pixel* Sketch(pixel* image, int alpha, int width, int height, pixel* output)
+pixel* Sketch(pixel* image, int threshold, int alpha, int width, int height, pixel* output)
 {
 	int i, j, k = 0;
 	int length = width * height;
@@ -138,7 +138,7 @@ pixel* Sketch(pixel* image, int alpha, int width, int height, pixel* output)
 
 	for(i = 0; i < length; i++)
 	{
-		if(output[i].red <= 5)
+		if(output[i].red <= threshold)
 			output[i].red = output[i].blue = output[i].green = 255;
 
 		else
