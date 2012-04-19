@@ -55,6 +55,8 @@ pixel* Gradient_Magnitude(pixel* image, double sigma, int width, int height, pix
   // free memory
   free(image1);
   free(image2);
+  free(g_kernel.kernel_int);
+  free(g_kernel.kernel_double);
 
   return output;
 }
@@ -152,14 +154,15 @@ pixel* Fast_Edges(pixel* image, int threshold, int width, int height, pixel* out
        { 0,  4,  0},
        {-1,  0, -1} };
 
-	RGB_to_Gray_PixelArray(image, width, height, image);
+	pixel* copy = pixel_copy(image, width, height);
+	RGB_to_Gray_PixelArray(image, width, height, copy);
 
 	for(i=1; i<height-1; i++){
       for(j=1; j<width-1; j++){
          sum = 0;
          for(a=-1; a<2; a++){
             for(b=-1; b<2; b++){
-               sum = sum + image[(i*width)+(a*width)+j+b].red * quick_mask[a+1][b+1];
+               sum = sum + copy[(i*width)+(a*width)+j+b].red * quick_mask[a+1][b+1];
             }
          }
          if(sum < 0)   sum = 0;
@@ -176,5 +179,6 @@ pixel* Fast_Edges(pixel* image, int threshold, int width, int height, pixel* out
 	// threshold
 	Threshold(output, threshold, width, height, output);
 
+	free(copy);
 	return output;
 }

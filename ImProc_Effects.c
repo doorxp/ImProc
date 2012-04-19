@@ -152,6 +152,12 @@ pixel* Sketch(pixel* image, int threshold, int alpha, int width, int height, pix
 	return output;
 }
 
+pixel* Static(pixel* image, int width, int height, pixel* output)
+{
+	Fast_Edges(image, 1, width, height, output);
+	return output;
+}
+
 int gradient(pixel origin, pixel neighbor, int distance)
 {
 	// return estimate of gradient between pixels

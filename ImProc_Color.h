@@ -25,16 +25,9 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#define R 0
-#define G 1
-#define B 2
-#define H 0
-#define S 1
-#define V 2
-
 #include "ImProc_Base.h"
 
-pixel* Adjust_RGB(pixel* image, int channel, int alpha, int width, int height, pixel* output); 
-pixel* Adjust_HSV(pixel* image, int channel, int alpha, int width, int height, pixel* output);
+pixel* Adjust_RGB(pixel* image, int r, int g, int b, int width, int height, pixel* output);
+pixel* Adjust_HSV(pixel* image, double h, double s, double v, int width, int height, pixel* output);
 
 #endif

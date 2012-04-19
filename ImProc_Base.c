@@ -130,30 +130,30 @@ pixel* Modify_Contrast(pixel* image, int alpha, int width, int height, pixel* ou
   for(i; i < length; i++)
     {
       
-      // compute new pixel data
-      pixel p = image[i];
+	  // compute new pixel data
+	  pixel p = image[i];
 
-      tempRed = p.red * alpha;
-      tempGreen = p.green * alpha;
-      tempBlue = p.blue * alpha;
+	  tempRed = p.red * alpha;
+	  tempGreen = p.green * alpha;
+	  tempBlue = p.blue * alpha;
 
-      // clamp pixel data to 0/255 (assuming 8 bit depth)
-      if(tempRed > 255)
-	tempRed = 255;
-      if(tempRed < 0)
-	tempRed = 0;
-      if(tempGreen > 255)
-	tempGreen = 255;
-      if(tempGreen < 0)
-	tempGreen = 0;
-      if(tempBlue > 255)
-	tempBlue = 255;
-      if(tempBlue < 0)
-	tempBlue = 0;
+	  // clamp pixel data to 0/255 (assuming 8 bit depth)
+	  if(tempRed > 255)
+		  tempRed = 255;
+	  if(tempRed < 0)
+		  tempRed = 0;
+	  if(tempGreen > 255)
+		  tempGreen = 255;
+	  if(tempGreen < 0)
+		  tempGreen = 0;
+	  if(tempBlue > 255)
+		  tempBlue = 255;
+	  if(tempBlue < 0)
+		  tempBlue = 0;
 
-      p.red = (unsigned char)tempRed;
-      p.green = (unsigned char)tempGreen;
-      p.blue = (unsigned char)tempBlue;
+	  p.red = (unsigned char)tempRed;
+	  p.green = (unsigned char)tempGreen;
+	  p.blue = (unsigned char)tempBlue;
 
       output[i] = p;
     }

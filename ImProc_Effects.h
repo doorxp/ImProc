@@ -30,5 +30,6 @@
 pixel* Cartoon(pixel* image, int lines, int colors, int width, int height, pixel* output);
 pixel* Posterize(pixel* image, int levels, int width, int height, pixel* output);
 pixel* Sketch(pixel* image, int threshold, int alpha, int width, int height, pixel* output);
+pixel* Static(pixel* image, int alpha, int width, pixel* output);
 
 #endif

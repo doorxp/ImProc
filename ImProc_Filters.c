@@ -234,16 +234,20 @@ pixel* Fast_Sharpen(pixel* image, int width, int height, pixel* output)
 	// create copy for convolution
 	pixelInt* image1 = pixel_to_pixelInt(image, width, height, NULL);
 	pixelInt* image2 = pixel_to_pixelInt(image, width, height, NULL);
+	pixelInt* image3 = pixel_to_pixelInt(image, width, height, NULL);
 
 	// convolve
 	convolve_in_X(image2, sharpen_kernel, width, height, 1);
-	convolve_in_Y(image2, sharpen_kernel, width, height, 1);
+	convolve_in_Y(image3, sharpen_kernel, width, height, 1);
 
+	pixelInt_combine(image2, image3, width, height, ADD);
+	pixelInt_pointOp(image2, 2, width, height, DIV);
 	pixelInt_combine(image1, image2, width, height, SUB);
 	pixelInt_to_pixel(image1, width, height, output);
 
 	free(image1);
 	free(image2);
+	free(image3);
 
 	return output;
 }
@@ -439,4 +443,9 @@ void sort(int arr[9], int beg, int end)
     sort(arr, beg, l);
     sort(arr, r, end);
   }
+}
+
+pixel* Erode(pixel* image, int size, int width, int height, pixel* output)
+{
+
 }
